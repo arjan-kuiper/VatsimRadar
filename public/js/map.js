@@ -1,27 +1,122 @@
 //(function() {
     let map, loaded = false;
-    let clients, markers = [];
+    let clients, markers = [], flightPath;
 
     // Gets called by the Google API callback
     function startRenderer() {
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 52.379189, lng: 4.899431},
             zoom: 6,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: [
+                {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+                {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+                {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+                {
+                    featureType: 'administrative.locality',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#d59563'}]
+                },
+                {
+                    featureType: 'poi',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#d59563'}]
+                },
+                {
+                    featureType: 'poi.park',
+                    elementType: 'geometry',
+                    stylers: [{color: '#263c3f'}]
+                },
+                {
+                    featureType: 'poi.park',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#6b9a76'}]
+                },
+                {
+                    featureType: 'road',
+                    elementType: 'geometry',
+                    stylers: [{color: '#38414e'}]
+                },
+                {
+                    featureType: 'road',
+                    elementType: 'geometry.stroke',
+                    stylers: [{color: '#212a37'}]
+                },
+                {
+                    featureType: 'road',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#9ca5b3'}]
+                },
+                {
+                    featureType: 'road.highway',
+                    elementType: 'geometry',
+                    stylers: [{color: '#746855'}]
+                },
+                {
+                    featureType: 'road.highway',
+                    elementType: 'geometry.stroke',
+                    stylers: [{color: '#1f2835'}]
+                },
+                {
+                    featureType: 'road.highway',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#f3d19c'}]
+                },
+                {
+                    featureType: 'transit',
+                    elementType: 'geometry',
+                    stylers: [{color: '#2f3948'}]
+                },
+                {
+                    featureType: 'transit.station',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#d59563'}]
+                },
+                {
+                    featureType: 'water',
+                    elementType: 'geometry',
+                    stylers: [{color: '#17263c'}]
+                },
+                {
+                    featureType: 'water',
+                    elementType: 'labels.text.fill',
+                    stylers: [{color: '#515c6d'}]
+                },
+                {
+                    featureType: 'water',
+                    elementType: 'labels.text.stroke',
+                    stylers: [{color: '#17263c'}]
+                }
+            ]
         });
 
+        map.addListener('click', function(){
+            if(flightPath !== undefined) flightPath.setMap(null); // Clear selected flightpath on click
+        });
+
+        // Hide flight info by default
+        showFlightInfo(false);
+
+        // Start the data loop
         requestClientData();
+        setInterval(requestClientData, 1000 * 10);
     }
 
     function requestClientData() {
-        setInterval(function () {
-            $.get('/clientdata', function (data) {
-                console.log('[' + new Date().getHours() + ':' + new Date().getMinutes() + '] - RECEIVED MAP DATA');
-                clients = data;
-                loadClients(data);
-                loaded = true;
+        $.get('/api/clientdata', function (data) {
+            console.log('[' + new Date().getHours() + ':' + new Date().getMinutes() + '] - RECEIVED MAP DATA');
+            clients = data;
+
+            clients.forEach((client) =>{
+               if(client.clienttype !== 'PILOT'){
+                   clients.splice(clients.indexOf(client), 1);
+                   console.log('Removed non pilot from list');
+               }
             });
-        }, 1000 * 10);
+
+            loadClients(data);
+            loaded = true;
+        });
     }
 
     function updateMarkers() {
@@ -59,10 +154,11 @@
     function addMarker(cid, lat, lon, heading) {
         let icon = {
             path: "M50.915,0.889C50.43,0.325,49.724,0,48.98,0c-0.744,0-1.451,0.325-1.936,0.889c-2.702,3.146-4.188,7.155-4.188,11.302v22.503L0,68.367v10.204l42.857-16.326v15.306c0,1.424,0.351,2.826,1.021,4.082L28.572,91.837V100l20.408-8.163L69.388,100v-8.163L54.082,81.633c0.67-1.256,1.021-2.658,1.021-4.082V62.245L97.96,78.571V68.367L55.103,34.694V12.191C55.103,8.044,53.617,4.035,50.915,0.889",
-            fillColor: 'BLACK',
+            fillColor: 'orange',
             fillOpacity: 1,
             anchor: new google.maps.Point(parseFloat(lat), parseFloat(lon)),
-            strokeWeight: 0,
+            strokeColor: 'black',
+            strokeWeight: 1,
             scale: .25,
             rotation: parseInt(heading)
         };
@@ -113,6 +209,65 @@
                 break;
             }
         }
-        alert(client.planned_depairport + ' -> ' + client.planned_destairport);
+        drawFlightplan(client);
+        showFlightInfo(true, client);
+    }
+
+    function drawFlightplan(client){
+        let coordinates = [];
+        if(flightPath !== undefined) flightPath.setMap(null);
+
+        $.get('/api/airport/' + client.planned_depairport, function (data) {
+            if(JSON.parse(data) !== 404){
+                let airport = JSON.parse(data);
+                coordinates.unshift({
+                    lat: parseFloat(airport[0]),
+                    lng: parseFloat(airport[1])
+                });
+                $.get('/api/airport/' + client.planned_destairport, function (data) {
+                    if(JSON.parse(data) !== 404){
+                        let airport = JSON.parse(data);
+                        coordinates.push({
+                            lat: parseFloat(airport[0]),
+                            lng: parseFloat(airport[1])
+                        });
+
+                        flightPath = new google.maps.Polyline({
+                            path: coordinates,
+                            geodesic: true,
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2
+                        });
+
+                        flightPath.setMap(map);
+                    }else{
+                        console.warn('Could not fetch airport');
+                    }
+                });
+            }else{
+                console.warn('Could not fetch airport');
+            }
+        });
+    }
+
+    function showFlightInfo(show, client = undefined){
+        if(client == undefined){
+            document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
+            return;
+        }else{
+            let aircraftType = client.planned_aircraft.indexOf('B738') >= 0 ? 'B738' : 'UNKNOWN';
+            let airline = client.callsign.substr(0, 3);
+            console.log(airline);
+
+            document.getElementById('engine-replace-callsign').innerHTML = (client.callsign !== undefined) ? client.callsign : '???';
+            document.getElementById('engine-replace-departure_airport').innerHTML = (client.planned_depairport !== undefined) ? client.planned_depairport : '???';
+            document.getElementById('engine-replace-destination_airport').innerHTML = (client.planned_destairport !== undefined) ? client.planned_destairport : '???';
+            document.getElementById('engine-replace-aircraft_image').src = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
+            /*document.getElementById('engine-replace-departure_planned').innerHTML = (client.planned_deptime !== undefined) ? client.planned_deptime : '???';
+            document.getElementById('engine-replace-departure_actual').innerHTML = (client.planned_actdeptime !== undefined) ? client.planned_actdeptime : '???';*/
+            console.warn(client.planned_aircraft);
+            document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
+        }
     }
 //})();

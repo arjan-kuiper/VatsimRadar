@@ -1,0 +1,71 @@
+.wrapper {
+    display: flex;
+    align-items: stretch;
+}
+
+#sidebar {
+    z-index: 1337;
+    background: #343a40;
+    color: #fff;
+    transition: all 0.3s;
+    position: fixed;
+    height: 100%;
+    max-width: 300px
+}
+
+#sidebar .sidebar-header {
+    background: #343a40;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    border-bottom: 1px solid #47748b;
+}
+
+#sidebar ul p {
+    color: #fff;
+    padding: 10px;
+}
+
+#sidebar ul li a {
+    padding: 10px;
+    font-size: 1.1em;
+    display: block;
+}
+#sidebar ul li a:hover {
+    color: #7386D5;
+    background: #fff;
+}
+
+#sidebar ul li.active > a, a[aria-expanded="true"] {
+    color: #fff;
+    background: #343a40;
+}
+
+.callsign-background{
+    background-color: #292d31;
+}
+
+.callsign{
+    color: #ffc107;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.row-spacer{
+    margin-top: 15px;
+}
+
+.airport-title{
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.airport-small{
+    font-size: .8em;
+    color: lightgray;
+}
+
+.schedule th{
+    font-weight: normal;
+}

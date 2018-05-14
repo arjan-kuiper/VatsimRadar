@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});
+});*/
+
+Route::get('/clientdata', 'MapRenderController@getServers');
+Route::get('/airacdata/fixes/{fixcollection}', 'AiracController@getFixes');
+Route::get('/airport/{airport}', 'AirportController@getAirport');
+
