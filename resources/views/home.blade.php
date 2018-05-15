@@ -23,13 +23,23 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse order-1" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="#">Live Map <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">FAQ</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-collapse collapse order-3">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a id="engine-replace-client_count" class="nav-link"></a>
                     </li>
                 </ul>
             </div>
@@ -49,14 +59,14 @@
                     </div>
                     <div class="row row-spacer" align="center">
                         <div class="col-md">
-                            <span id="engine-replace-departure_airport" class="airport-title">EHGG</span>
+                            <span id="engine-replace-departure_airport" class="airport-title">EHGG</span><br>
                             <span id="engine-replace-departure_airport_iata" class="airport-small">GRQ</span>
                         </div>
                         <div class="col-md">
                             <i class="fas fa-plane fa-2x"></i>
                         </div>
                         <div class="col-md">
-                            <span id="engine-replace-destination_airport" class="airport-title">EHAM</span>
+                            <span id="engine-replace-destination_airport" class="airport-title">EHAM</span><br>
                             <span id="engine-replace-destination_airport_iata" class="airport-small">AMS</span>
                         </div>
                     </div>

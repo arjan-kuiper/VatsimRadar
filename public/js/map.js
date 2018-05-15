@@ -146,6 +146,10 @@
             }
             markers[receivedData[i].cid].last_update = new Date();
         }
+
+        // Update our navbar counter of connected clients
+        document.getElementById('engine-replace-client_count').innerHTML = 'Serving <b>' + clients.length + '</b> clients';
+
         removeUnusedMarkers();
     }
 
@@ -208,8 +212,6 @@
             }
         }
 
-        console.log('Departure: ' + client.planned_deptime);
-
         drawFlightplan(client);
         showFlightInfo(true, client);
     }
@@ -253,15 +255,39 @@
     }
 
     function showFlightInfo(show, client = undefined){
-        if(client == undefined){
+        if(client === undefined){
             document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
-            return;
         }else{
+            /*
+            AIRCRAFTS
+             */
             let aircraftType = 'UNKNOWN', departure_iata, destination_iata;
-            aircraftType = client.planned_aircraft.indexOf('B738') >= 0 ? 'B738' : aircraftType;
+            aircraftType = (client.planned_aircraft.indexOf('B738') >= 0 || client.planned_aircraft.indexOf('B737') >= 0) >= 0 ? 'B738' : aircraftType;
             aircraftType = client.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
             aircraftType = client.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
             let airline = client.callsign.substr(0, 3);
+            /*
+            SCHEDULING
+             */
+            let plannedDeptime = client.planned_deptime, plannedActualDeptime = client.planned_actdeptime;
+            let plannedHours = client.planned_hrsenroute, plannedMinutes = client.planned_minenroute, plannedArrival = '--:--';
+            if(plannedDeptime.length == 3){ plannedDeptime = 0 + plannedDeptime}
+            if(plannedActualDeptime.length == 3){ plannedActualDeptime = 0 + plannedActualDeptime}
+            plannedDeptime = [plannedDeptime.substr(0, 2), plannedDeptime.substr(2, 4)];
+            plannedActualDeptime = [plannedActualDeptime.substr(0, 2), plannedActualDeptime.substr(2, 4)];
+            if(plannedDeptime[0] === '0') { plannedDeptime = '--:--'; }
+            if(plannedActualDeptime[0] === '0') { plannedActualDeptime = '--:--'; }
+            console.log(plannedHours + ':' + plannedMinutes);
+            if(plannedDeptime !== '--:--' && plannedDeptime !== '--:--' && plannedHours !== undefined && plannedMinutes !== undefined){
+                let newHours = parseInt(plannedDeptime[0]) + parseInt(plannedHours);
+                let newMinutes = parseInt(plannedDeptime[1]) + parseInt(plannedMinutes);
+                if(newHours >= 24) { newHours = newHours % 24; newMinutes = 0; }
+                if(newMinutes >= 60) { newMinutes = newMinutes % 60; newHours++; }
+                if(newHours < 10) { newHours = '0' + newHours; }
+                if(newMinutes < 10) { newMinutes = '0' + newMinutes; }
+
+                plannedArrival = [newHours, newMinutes];
+            }
 
             $.get('/api/airport/' + client.planned_depairport + '/IATA', function (data) {
                 if(JSON.parse(data) !== 404) {
@@ -278,8 +304,10 @@
                             document.getElementById('engine-replace-destination_airport_iata').innerHTML = destination_iata.replace(/"/g, '');
 
                             document.getElementById('engine-replace-aircraft_image').src = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
-                            /*document.getElementById('engine-replace-departure_planned').innerHTML = (client.planned_deptime !== undefined) ? client.planned_deptime : '???';
-                            document.getElementById('engine-replace-departure_actual').innerHTML = (client.planned_actdeptime !== undefined) ? client.planned_actdeptime : '???';*/
+
+                            document.getElementById('engine-replace-departure_planned').innerHTML = plannedDeptime === '--:--' ? plannedDeptime : (plannedDeptime[0] + ':' + plannedDeptime[1]);
+                            document.getElementById('engine-replace-departure_actual').innerHTML = plannedActualDeptime === '--:--' ? plannedActualDeptime : (plannedActualDeptime[0] + ':' + plannedActualDeptime[1]);
+                            document.getElementById('engine-replace-destination_planned').innerHTML = plannedArrival === '--:--' ? plannedArrival : (plannedArrival[0] + ':' + plannedArrival[1]);
                             console.warn(client.planned_aircraft);
                             document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
                         }
