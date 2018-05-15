@@ -1,10 +1,10 @@
 body {
     position: relative;
-    font-family: "raleway",sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 
 body p {
-    font-family: "raleway",sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 
 body .inner {
