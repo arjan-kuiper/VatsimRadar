@@ -39,7 +39,7 @@
             <nav id="sidebar">
                 <!-- Sidebar Header -->
                 <div class="sidebar-header">
-                    <img id="engine-replace-aircraft_image" width="300px" src="" alt="Sorry! The aircraft type of this airline has no image yet!">
+                    <img id="engine-replace-aircraft_image" width="300px" onerror="this.src='http://via.placeholder.com/300x200'" alt="Sorry! The aircraft type of this airline has no image yet!">
                 </div>
                 <div class="container">
                     <div class="row">
@@ -50,14 +50,14 @@
                     <div class="row row-spacer" align="center">
                         <div class="col-md">
                             <span id="engine-replace-departure_airport" class="airport-title">EHGG</span>
-                            <span class="airport-small">GRQ</span>
+                            <span id="engine-replace-departure_airport_iata" class="airport-small">GRQ</span>
                         </div>
                         <div class="col-md">
                             <i class="fas fa-plane fa-2x"></i>
                         </div>
                         <div class="col-md">
                             <span id="engine-replace-destination_airport" class="airport-title">EHAM</span>
-                            <span class="airport-small">AMS</span>
+                            <span id="engine-replace-destination_airport_iata" class="airport-small">AMS</span>
                         </div>
                     </div>
                     <div class="row row-spacer" align="center">

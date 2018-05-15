@@ -107,14 +107,12 @@
             console.log('[' + new Date().getHours() + ':' + new Date().getMinutes() + '] - RECEIVED MAP DATA');
             clients = data;
 
-            clients.forEach((client) =>{
-               if(client.clienttype !== 'PILOT'){
-                   clients.splice(clients.indexOf(client), 1);
-                   console.log('Removed non pilot from list');
-               }
+            // Remove all non pilots from the clients list.
+            clients = clients.filter(function(client){
+               return client.clienttype === 'PILOT';
             });
 
-            loadClients(data);
+            loadClients(clients);
             loaded = true;
         });
     }
@@ -209,6 +207,9 @@
                 break;
             }
         }
+
+        console.log('Departure: ' + client.planned_deptime);
+
         drawFlightplan(client);
         showFlightInfo(true, client);
     }
@@ -256,18 +257,35 @@
             document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
             return;
         }else{
-            let aircraftType = client.planned_aircraft.indexOf('B738') >= 0 ? 'B738' : 'UNKNOWN';
+            let aircraftType = 'UNKNOWN', departure_iata, destination_iata;
+            aircraftType = client.planned_aircraft.indexOf('B738') >= 0 ? 'B738' : aircraftType;
+            aircraftType = client.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
+            aircraftType = client.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
             let airline = client.callsign.substr(0, 3);
-            console.log(airline);
 
-            document.getElementById('engine-replace-callsign').innerHTML = (client.callsign !== undefined) ? client.callsign : '???';
-            document.getElementById('engine-replace-departure_airport').innerHTML = (client.planned_depairport !== undefined) ? client.planned_depairport : '???';
-            document.getElementById('engine-replace-destination_airport').innerHTML = (client.planned_destairport !== undefined) ? client.planned_destairport : '???';
-            document.getElementById('engine-replace-aircraft_image').src = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
-            /*document.getElementById('engine-replace-departure_planned').innerHTML = (client.planned_deptime !== undefined) ? client.planned_deptime : '???';
-            document.getElementById('engine-replace-departure_actual').innerHTML = (client.planned_actdeptime !== undefined) ? client.planned_actdeptime : '???';*/
-            console.warn(client.planned_aircraft);
-            document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
+            $.get('/api/airport/' + client.planned_depairport + '/IATA', function (data) {
+                if(JSON.parse(data) !== 404) {
+                    departure_iata = data;
+                    $.get('/api/airport/' + client.planned_destairport + '/IATA', function (data) {
+                        if(JSON.parse(data) !== 404) {
+                            destination_iata = data;
+                            document.getElementById('engine-replace-callsign').innerHTML = (client.callsign !== undefined) ? client.callsign : '???';
+
+                            document.getElementById('engine-replace-departure_airport').innerHTML = (client.planned_depairport !== undefined) ? client.planned_depairport : '???';
+                            document.getElementById('engine-replace-departure_airport_iata').innerHTML = departure_iata.replace(/"/g, '');
+
+                            document.getElementById('engine-replace-destination_airport').innerHTML = (client.planned_destairport !== undefined) ? client.planned_destairport : '???';
+                            document.getElementById('engine-replace-destination_airport_iata').innerHTML = destination_iata.replace(/"/g, '');
+
+                            document.getElementById('engine-replace-aircraft_image').src = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
+                            /*document.getElementById('engine-replace-departure_planned').innerHTML = (client.planned_deptime !== undefined) ? client.planned_deptime : '???';
+                            document.getElementById('engine-replace-departure_actual').innerHTML = (client.planned_actdeptime !== undefined) ? client.planned_actdeptime : '???';*/
+                            console.warn(client.planned_aircraft);
+                            document.getElementById('sidebar').style.display = (show) ? 'block' : 'none';
+                        }
+                    });
+                }
+            });
         }
     }
 //})();

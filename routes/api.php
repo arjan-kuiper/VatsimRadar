@@ -19,5 +19,5 @@ use Illuminate\Http\Request;
 
 Route::get('/clientdata', 'MapRenderController@getServers');
 Route::get('/airacdata/fixes/{fixcollection}', 'AiracController@getFixes');
-Route::get('/airport/{airport}', 'AirportController@getAirport');
+Route::get('/airport/{airport}/{datatype?}', 'AirportController@getAirport');
 
