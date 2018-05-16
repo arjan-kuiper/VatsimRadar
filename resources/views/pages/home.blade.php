@@ -5,12 +5,15 @@
     <link href="{{ asset('css/please-wait.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/default.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/flightinfo.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/leaflet.css') }}" rel="stylesheet" type="text/css">
     <div id="app" class="wrapper">
         <div class="container-fluid">
             <map-component></map-component>
         </div>
     </div>
-    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBmfdNGwHi4CTLG4b8CQs0WrgCLecOETVs' async defer></script>
+
+    <script src='{{ asset('js/leaflet.js') }}'></script>
+    <script src='{{ asset('js/leaflet-rotation.js') }}'></script>
 
     <script type="text/javascript" src="{{ asset('js/please-wait.js') }}"></script>
     <script type="text/javascript">
