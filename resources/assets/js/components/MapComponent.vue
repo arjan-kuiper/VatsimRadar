@@ -1,5 +1,8 @@
 <template>
-    <div id="radar-map" v-bind:id="mapName"></div>
+    <div>
+        <div id="radar-map" v-bind:id="mapName"></div>
+        <div>{{ showATC }}</div>
+    </div>
 </template>
 
 <script>
@@ -13,7 +16,6 @@
             return {
                 mapName: "radar-map",
                 clients: [],
-                atc: [],
                 markers: [],
                 loaded: false
             }
@@ -30,6 +32,11 @@
                 accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw'
             }).addTo(this.map);
 
+            let self = this;
+            this.map.on('click', function(){
+                self.$store.state.showSidebar = false;
+            });
+
             this.requestClientData();
             setInterval(this.requestClientData, 1000 * 10);
         },
@@ -39,16 +46,6 @@
                 axios.get('/api/clientdata').then(response =>{
                     console.log('[' + new Date().getHours() + ':' + new Date().getMinutes() + '] - RECEIVED MAP DATA');
                     this.clients = response.data;
-
-                    // Remove all non pilots from the clients list.
-                    let self = this;
-                    this.atc = [];
-                    this.clients = this.clients.filter(function(client){
-                        if(client.clienttype === 'ATC'){
-                            self.atc.push(client);
-                        }
-                        return client.clienttype === 'PILOT';
-                    });
 
                     // Update our global client counter
                     this.$store.state.totalClients = this.clients.length;
@@ -63,25 +60,24 @@
             loadClients: function(){
                 for(let i = 0; i < this.clients.length; i++){
                     if(this.markers[this.clients[i].cid] === undefined){
-                        this.addMarker(this.clients[i].cid, this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
-                    }else{
-                        if(this.clients[i].latitude !== undefined && this.clients[i].longitude !== undefined){
-                            this.markers[this.clients[i].cid].setLatLng(new L.LatLng(parseFloat(this.clients[i].latitude), parseFloat(this.clients[i].longitude)));
+                        if(this.clients[i].clienttype === 'PILOT'){
+                            this.addMarker(this.clients[i], this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
+                        }else if(this.clients[i].clienttype === 'ATC'){
+                            this.addATC(this.clients[i], this.clients[i].callsign.slice(-3), this.clients[i].latitude, this.clients[i].longitude);
                         }
-                    }
-                    this.markers[this.clients[i].cid].last_update = new Date();
-                }
-                for(let i = 0; i < this.atc.length; i++){
-                    if(this.markers[this.atc[i].cid] === undefined){
-                        if(this.atc[i].latitude !== undefined && this.atc[i].longitude !== undefined){
-                            this.addATC(this.atc[i].cid, 'red', this.atc[i].callsign.slice(-3), this.atc[i].latitude, this.atc[i].longitude);
+                    }else{
+                        if(this.clients[i].clienttype === 'PILOT' || this.clients[i].clienttype === 'ATC'){
+                            if(this.clients[i].latitude !== undefined && this.clients[i].longitude !== undefined){
+                                this.markers[this.clients[i].cid].setLatLng(new L.LatLng(parseFloat(this.clients[i].latitude), parseFloat(this.clients[i].longitude)));
+                            }
                         }
                     }
                 }
                 this.removeUnusedMarkers();
             },
 
-            addMarker: function(cid, lat, lon, heading){
+            addMarker: function(pilot, lat, lon, heading){
+                let cid = pilot.cid;
                 lat = parseFloat(lat);
                 lon = parseFloat(lon);
 
@@ -91,12 +87,31 @@
                     iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
                 });
 
-                if(lat !== undefined && lon !== undefined){
+                if(!isNaN(lat) && !isNaN(lon)){
                     this.markers[cid] = L.marker([lat, lon], {icon: icon, rotationAngle: heading}).addTo(this.map);
+                    this.markers[cid].last_update = new Date();
+                    this.markers[cid].identifier = 'PILOT';
+
+                    // Info tooltip
+                    this.markers[cid].bindTooltip(
+                        pilot.callsign
+                    ,{
+                        offset: [-22, 0],
+                        tooltipAnchor: [22, 22],
+                        direction: 'left'
+                    });
+
+                    // Data for the sidebar and show it
+                    let self = this;
+                    this.markers[cid].on('click', function(){
+                        console.log(pilot.callsign + ' - ' + pilot.planned_aircraft);
+                        self.showFlightInfo(pilot);
+                    });
                 }
             },
 
-            addATC: function(cid, color, type, lat, lon){
+            addATC: function(atc, type, lat, lon){
+                let cid = atc.cid;
                 let radius = {
                     'GND': [5000, 'gray'],
                     'TWR': [25000, 'blue'],
@@ -111,6 +126,16 @@
                     fillOpacity: 0.5,
                     radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
                 }).addTo(this.map);
+                this.markers[cid].last_update = new Date();
+                this.markers[cid].identifier = 'ATC';
+
+                // Build an info tooltip
+                this.markers[cid].bindTooltip(
+                    '<strong>' + atc.callsign + '</strong><br>' +
+                    'Frequency: ' + atc.frequency + '</br>' +
+                    'Visual Range: ' + atc.visualrange + 'nm</br>' +
+                    'Rating: ' + atc.rating
+                );
             },
 
             removeUnusedMarkers: function(){
@@ -125,12 +150,8 @@
                     for (let i = 0; i < this.clients.length; i++) {
                         clientIds.push(this.clients[i].cid);
                     }
-                    let atcIds = [];
-                    for (let i = 0; i < this.atc.length; i++) {
-                        atcIds.push(this.atc[i].cid);
-                    }
                     toRemove.forEach((marker, markerId) => {
-                        if (clientIds.indexOf(markerId) > -1 || atcIds.indexOf(markerId) > -1) {
+                        if (clientIds.indexOf(markerId) > -1) {
                             marker.setMap(null);
                             this.markers.splice(this.markers.indexOf(marker), 1);
                         }
@@ -151,8 +172,73 @@
                 this.showFlightInfo(true, client)
             },
 
-            showFlightInfo(show, client = undefined){
-                console.log('Showing flight info of ' + client.cid + ' :P');
+            showFlightInfo(pilot){
+                /*
+                AIRCRAFTS
+                 */
+                let aircraftType = 'UNKNOWN';
+                aircraftType = (pilot.planned_aircraft.indexOf('B738') >= 0 || pilot.planned_aircraft.indexOf('B737') >= 0) >= 0 ? 'B738' : aircraftType;
+                aircraftType = pilot.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
+                aircraftType = pilot.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
+                let airline = pilot.callsign.substr(0, 3);
+                /*
+                SCHEDULING
+                 */
+                let plannedDeptime = pilot.planned_deptime, plannedActualDeptime = pilot.planned_actdeptime;
+                let plannedHours = pilot.planned_hrsenroute, plannedMinutes = pilot.planned_minenroute, plannedArrival = '--:--';
+                if(plannedDeptime.length === 3){ plannedDeptime = 0 + plannedDeptime}
+                if(plannedActualDeptime.length === 3){ plannedActualDeptime = 0 + plannedActualDeptime}
+                plannedDeptime = [plannedDeptime.substr(0, 2), plannedDeptime.substr(2, 4)];
+                plannedActualDeptime = [plannedActualDeptime.substr(0, 2), plannedActualDeptime.substr(2, 4)];
+                if(plannedDeptime[0] === '0') { plannedDeptime = '--:--'; }
+                if(plannedActualDeptime[0] === '0') { plannedActualDeptime = '--:--'; }
+                if(plannedDeptime !== '--:--' && plannedDeptime !== '--:--' && plannedHours !== undefined && plannedMinutes !== undefined){
+                    let newHours = parseInt(plannedDeptime[0]) + parseInt(plannedHours);
+                    let newMinutes = parseInt(plannedDeptime[1]) + parseInt(plannedMinutes);
+                    if(newHours >= 24) { newHours = newHours % 24; newMinutes = 0; }
+                    if(newMinutes >= 60) { newMinutes = newMinutes % 60; newHours++; }
+                    if(newHours < 10) { newHours = '0' + newHours; }
+                    if(newMinutes < 10) { newMinutes = '0' + newMinutes; }
+
+                    plannedArrival = [newHours, newMinutes];
+                }
+
+                let promises = [];
+                promises.push(axios.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
+                promises.push(axios.get('/api/airport/' + pilot.planned_destairport + '/IATA'));
+
+                let self = this;
+                axios.all(promises).then(function(result){
+                    self.$store.state.flightInformation['image'] = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
+                    self.$store.state.flightInformation['flightnr'] = pilot.callsign;
+                    self.$store.state.flightInformation['departure_airport'] = pilot.planned_depairport;
+                    self.$store.state.flightInformation['departure_airport_iata'] = result[0].data;
+                    self.$store.state.flightInformation['arrival_airport'] = pilot.planned_destairport;
+                    self.$store.state.flightInformation['arrival_airport_iata'] = result[1].data;
+                    self.$store.state.flightInformation['departure_estimated'] = plannedDeptime === '--:--' ? plannedDeptime : (plannedDeptime[0] + ':' + plannedDeptime[1]);
+                    self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : (plannedActualDeptime[0] + ':' + plannedActualDeptime[1]);
+                    self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : (plannedArrival[0] + ':' + plannedArrival[1]);
+                    self.$store.state.showSidebar = true;
+                });
+            }
+        },
+
+        computed: {
+            showATC(){
+                if(this.$store.state.showATC === true){
+                    this.markers.forEach((marker, markerIndex) =>{
+                        if(marker.identifier === 'ATC'){
+                            this.map.addLayer(marker);
+                        }
+                    });
+                }else{
+                    this.markers.forEach((marker, markerIndex) =>{
+                        if(marker.identifier === 'ATC'){
+                            this.map.removeLayer(marker);
+                        }
+                    });
+                }
+                return this.$store.state.showATC;
             }
         }
     }

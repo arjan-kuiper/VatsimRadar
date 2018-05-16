@@ -14012,10 +14012,31 @@ window.Vue = __webpack_require__(38);
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */]);
 Vue.component('map-component', __webpack_require__(41));
 Vue.component('navbar-component', __webpack_require__(44));
+Vue.component('sidebar-component', __webpack_require__(52));
 
 var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
     state: {
-        totalClients: 0
+        totalClients: 0,
+        showATC: true,
+
+        showSidebar: false,
+        flightInformation: {
+            'image': 'none',
+            'flightnr': 'replace-me',
+            'departure_airport': 'replace-me',
+            'departure_airport_iata': 'replace-me',
+            'arrival_airport': 'replace-me',
+            'arrival_airport_iata': 'replace-me',
+            'departure_estimated': '--:--',
+            'departure_actual': '--:--',
+            'arrival_estimated': '--:--',
+            'arrival_actual': '--:--'
+        }
+    },
+    mutations: {
+        setShowATC: function setShowATC(state, payload) {
+            state.showATC = payload;
+        }
     }
 });
 var navbarData = new Vue({
@@ -48277,6 +48298,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 
@@ -48288,7 +48312,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             mapName: "radar-map",
             clients: [],
-            atc: [],
             markers: [],
             loaded: false
         };
@@ -48305,6 +48328,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw'
         }).addTo(this.map);
 
+        var self = this;
+        this.map.on('click', function () {
+            self.$store.state.showSidebar = false;
+        });
+
         this.requestClientData();
         setInterval(this.requestClientData, 1000 * 10);
     },
@@ -48317,16 +48345,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/clientdata').then(function (response) {
                 console.log('[' + new Date().getHours() + ':' + new Date().getMinutes() + '] - RECEIVED MAP DATA');
                 _this.clients = response.data;
-
-                // Remove all non pilots from the clients list.
-                var self = _this;
-                _this.atc = [];
-                _this.clients = _this.clients.filter(function (client) {
-                    if (client.clienttype === 'ATC') {
-                        self.atc.push(client);
-                    }
-                    return client.clienttype === 'PILOT';
-                });
 
                 // Update our global client counter
                 _this.$store.state.totalClients = _this.clients.length;
@@ -48341,25 +48359,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         loadClients: function loadClients() {
             for (var i = 0; i < this.clients.length; i++) {
                 if (this.markers[this.clients[i].cid] === undefined) {
-                    this.addMarker(this.clients[i].cid, this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
-                } else {
-                    if (this.clients[i].latitude !== undefined && this.clients[i].longitude !== undefined) {
-                        this.markers[this.clients[i].cid].setLatLng(new L.LatLng(parseFloat(this.clients[i].latitude), parseFloat(this.clients[i].longitude)));
+                    if (this.clients[i].clienttype === 'PILOT') {
+                        this.addMarker(this.clients[i], this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
+                    } else if (this.clients[i].clienttype === 'ATC') {
+                        this.addATC(this.clients[i], this.clients[i].callsign.slice(-3), this.clients[i].latitude, this.clients[i].longitude);
                     }
-                }
-                this.markers[this.clients[i].cid].last_update = new Date();
-            }
-            for (var _i = 0; _i < this.atc.length; _i++) {
-                if (this.markers[this.atc[_i].cid] === undefined) {
-                    if (this.atc[_i].latitude !== undefined && this.atc[_i].longitude !== undefined) {
-                        this.addATC(this.atc[_i].cid, 'red', this.atc[_i].callsign.slice(-3), this.atc[_i].latitude, this.atc[_i].longitude);
+                } else {
+                    if (this.clients[i].clienttype === 'PILOT' || this.clients[i].clienttype === 'ATC') {
+                        if (this.clients[i].latitude !== undefined && this.clients[i].longitude !== undefined) {
+                            this.markers[this.clients[i].cid].setLatLng(new L.LatLng(parseFloat(this.clients[i].latitude), parseFloat(this.clients[i].longitude)));
+                        }
                     }
                 }
             }
             this.removeUnusedMarkers();
         },
 
-        addMarker: function addMarker(cid, lat, lon, heading) {
+        addMarker: function addMarker(pilot, lat, lon, heading) {
+            var cid = pilot.cid;
             lat = parseFloat(lat);
             lon = parseFloat(lon);
 
@@ -48369,12 +48386,29 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 iconAnchor: [11, 22] // point of the icon which will correspond to marker's location
             });
 
-            if (lat !== undefined && lon !== undefined) {
+            if (!isNaN(lat) && !isNaN(lon)) {
                 this.markers[cid] = L.marker([lat, lon], { icon: icon, rotationAngle: heading }).addTo(this.map);
+                this.markers[cid].last_update = new Date();
+                this.markers[cid].identifier = 'PILOT';
+
+                // Info tooltip
+                this.markers[cid].bindTooltip(pilot.callsign, {
+                    offset: [-22, 0],
+                    tooltipAnchor: [22, 22],
+                    direction: 'left'
+                });
+
+                // Data for the sidebar and show it
+                var self = this;
+                this.markers[cid].on('click', function () {
+                    console.log(pilot.callsign + ' - ' + pilot.planned_aircraft);
+                    self.showFlightInfo(pilot);
+                });
             }
         },
 
-        addATC: function addATC(cid, color, type, lat, lon) {
+        addATC: function addATC(atc, type, lat, lon) {
+            var cid = atc.cid;
             var radius = {
                 'GND': [5000, 'gray'],
                 'TWR': [25000, 'blue'],
@@ -48391,6 +48425,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 fillOpacity: 0.5,
                 radius: !isNaN(radius[type][0]) ? radius[type][0] : 0
             }).addTo(this.map);
+            this.markers[cid].last_update = new Date();
+            this.markers[cid].identifier = 'ATC';
+
+            // Build an info tooltip
+            this.markers[cid].bindTooltip('<strong>' + atc.callsign + '</strong><br>' + 'Frequency: ' + atc.frequency + '</br>' + 'Visual Range: ' + atc.visualrange + 'nm</br>' + 'Rating: ' + atc.rating);
         },
 
         removeUnusedMarkers: function removeUnusedMarkers() {
@@ -48407,12 +48446,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 for (var i = 0; i < this.clients.length; i++) {
                     clientIds.push(this.clients[i].cid);
                 }
-                var atcIds = [];
-                for (var _i2 = 0; _i2 < this.atc.length; _i2++) {
-                    atcIds.push(this.atc[_i2].cid);
-                }
                 toRemove.forEach(function (marker, markerId) {
-                    if (clientIds.indexOf(markerId) > -1 || atcIds.indexOf(markerId) > -1) {
+                    if (clientIds.indexOf(markerId) > -1) {
                         marker.setMap(null);
                         _this2.markers.splice(_this2.markers.indexOf(marker), 1);
                     }
@@ -48433,10 +48468,94 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.showFlightInfo(true, client);
         },
 
-        showFlightInfo: function showFlightInfo(show) {
-            var client = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+        showFlightInfo: function showFlightInfo(pilot) {
+            /*
+            AIRCRAFTS
+             */
+            var aircraftType = 'UNKNOWN';
+            aircraftType = (pilot.planned_aircraft.indexOf('B738') >= 0 || pilot.planned_aircraft.indexOf('B737') >= 0) >= 0 ? 'B738' : aircraftType;
+            aircraftType = pilot.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
+            aircraftType = pilot.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
+            var airline = pilot.callsign.substr(0, 3);
+            /*
+            SCHEDULING
+             */
+            var plannedDeptime = pilot.planned_deptime,
+                plannedActualDeptime = pilot.planned_actdeptime;
+            var plannedHours = pilot.planned_hrsenroute,
+                plannedMinutes = pilot.planned_minenroute,
+                plannedArrival = '--:--';
+            if (plannedDeptime.length === 3) {
+                plannedDeptime = 0 + plannedDeptime;
+            }
+            if (plannedActualDeptime.length === 3) {
+                plannedActualDeptime = 0 + plannedActualDeptime;
+            }
+            plannedDeptime = [plannedDeptime.substr(0, 2), plannedDeptime.substr(2, 4)];
+            plannedActualDeptime = [plannedActualDeptime.substr(0, 2), plannedActualDeptime.substr(2, 4)];
+            if (plannedDeptime[0] === '0') {
+                plannedDeptime = '--:--';
+            }
+            if (plannedActualDeptime[0] === '0') {
+                plannedActualDeptime = '--:--';
+            }
+            if (plannedDeptime !== '--:--' && plannedDeptime !== '--:--' && plannedHours !== undefined && plannedMinutes !== undefined) {
+                var newHours = parseInt(plannedDeptime[0]) + parseInt(plannedHours);
+                var newMinutes = parseInt(plannedDeptime[1]) + parseInt(plannedMinutes);
+                if (newHours >= 24) {
+                    newHours = newHours % 24;newMinutes = 0;
+                }
+                if (newMinutes >= 60) {
+                    newMinutes = newMinutes % 60;newHours++;
+                }
+                if (newHours < 10) {
+                    newHours = '0' + newHours;
+                }
+                if (newMinutes < 10) {
+                    newMinutes = '0' + newMinutes;
+                }
 
-            console.log('Showing flight info of ' + client.cid + ' :P');
+                plannedArrival = [newHours, newMinutes];
+            }
+
+            var promises = [];
+            promises.push(__WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
+            promises.push(__WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/airport/' + pilot.planned_destairport + '/IATA'));
+
+            var self = this;
+            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.all(promises).then(function (result) {
+                self.$store.state.flightInformation['image'] = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
+                self.$store.state.flightInformation['flightnr'] = pilot.callsign;
+                self.$store.state.flightInformation['departure_airport'] = pilot.planned_depairport;
+                self.$store.state.flightInformation['departure_airport_iata'] = result[0].data;
+                self.$store.state.flightInformation['arrival_airport'] = pilot.planned_destairport;
+                self.$store.state.flightInformation['arrival_airport_iata'] = result[1].data;
+                self.$store.state.flightInformation['departure_estimated'] = plannedDeptime === '--:--' ? plannedDeptime : plannedDeptime[0] + ':' + plannedDeptime[1];
+                self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : plannedActualDeptime[0] + ':' + plannedActualDeptime[1];
+                self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : plannedArrival[0] + ':' + plannedArrival[1];
+                self.$store.state.showSidebar = true;
+            });
+        }
+    },
+
+    computed: {
+        showATC: function showATC() {
+            var _this3 = this;
+
+            if (this.$store.state.showATC === true) {
+                this.markers.forEach(function (marker, markerIndex) {
+                    if (marker.identifier === 'ATC') {
+                        _this3.map.addLayer(marker);
+                    }
+                });
+            } else {
+                this.markers.forEach(function (marker, markerIndex) {
+                    if (marker.identifier === 'ATC') {
+                        _this3.map.removeLayer(marker);
+                    }
+                });
+            }
+            return this.$store.state.showATC;
         }
     }
 });
@@ -48449,7 +48568,11 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { attrs: { id: "radar-map", id: _vm.mapName } })
+  return _c("div", [
+    _c("div", { attrs: { id: "radar-map", id: _vm.mapName } }),
+    _vm._v(" "),
+    _c("div", [_vm._v(_vm._s(_vm.showATC))])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -48543,10 +48666,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
-        return {};
+        return {
+            showATC: true
+        };
     },
 
     mounted: function mounted() {
@@ -48557,6 +48693,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         totalClients: function totalClients() {
             return this.$store.state.totalClients;
+        },
+        changeShowATC: function changeShowATC() {
+            return this.$store.commit('setShowATC', this.showATC);
         }
     }
 });
@@ -48589,6 +48728,68 @@ var render = function() {
         },
         [
           _c("ul", { staticClass: "navbar-nav ml-auto" }, [
+            _c("li", { staticClass: "nav-item" }, [
+              _c("a", { staticClass: "nav-link" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.showATC,
+                      expression: "showATC"
+                    }
+                  ],
+                  staticClass: "form-check-input",
+                  attrs: {
+                    type: "checkbox",
+                    id: "showATC",
+                    onchange: _vm.changeShowATC
+                  },
+                  domProps: {
+                    checked: Array.isArray(_vm.showATC)
+                      ? _vm._i(_vm.showATC, null) > -1
+                      : _vm.showATC
+                  },
+                  on: {
+                    change: function($event) {
+                      var $$a = _vm.showATC,
+                        $$el = $event.target,
+                        $$c = $$el.checked ? true : false
+                      if (Array.isArray($$a)) {
+                        var $$v = null,
+                          $$i = _vm._i($$a, $$v)
+                        if ($$el.checked) {
+                          $$i < 0 && (_vm.showATC = $$a.concat([$$v]))
+                        } else {
+                          $$i > -1 &&
+                            (_vm.showATC = $$a
+                              .slice(0, $$i)
+                              .concat($$a.slice($$i + 1)))
+                        }
+                      } else {
+                        _vm.showATC = $$c
+                      }
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass: "form-check-label",
+                    attrs: { for: "showATC" }
+                  },
+                  [
+                    _vm._v(
+                      "\n                        Show ATC\n                    "
+                    )
+                  ]
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _vm._m(3),
+            _vm._v(" "),
             _c("li", { staticClass: "nav-item" }, [
               _c(
                 "a",
@@ -48673,6 +48874,12 @@ var staticRenderFns = [
         ])
       ]
     )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("li", [_c("a", { staticClass: "nav-link" }, [_vm._v("|")])])
   }
 ]
 render._withStripped = true
@@ -48689,6 +48896,302 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(12)
+/* script */
+var __vue_script__ = __webpack_require__(53)
+/* template */
+var __vue_template__ = __webpack_require__(54)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\SidebarComponent.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-b468b010", Component.options)
+  } else {
+    hotAPI.reload("data-v-b468b010", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {};
+    },
+
+    mounted: function mounted() {
+        console.log('Sidebar mounted.');
+    },
+
+
+    computed: {
+        showSidebar: function showSidebar() {
+            return this.$store.state.showSidebar;
+        },
+        flightInformation: function flightInformation() {
+            return this.$store.state.flightInformation;
+        }
+    }
+});
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.showSidebar
+    ? _c("nav", { attrs: { id: "sidebar" } }, [
+        _c("div", { staticClass: "sidebar-header" }, [
+          _c("img", {
+            attrs: {
+              width: "300px",
+              alt: "Sorry! The aircraft type of this airline has no image yet!",
+              src: _vm.flightInformation["image"]
+            }
+          })
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "container" }, [
+          _c("div", { staticClass: "row" }, [
+            _c(
+              "div",
+              {
+                staticClass: "col-md callsign-background",
+                attrs: { align: "center" }
+              },
+              [
+                _c("span", { staticClass: "callsign" }, [
+                  _vm._v(_vm._s(_vm.flightInformation["flightnr"]))
+                ])
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "row row-spacer", attrs: { align: "center" } },
+            [
+              _c("div", { staticClass: "col-md" }, [
+                _c("span", { staticClass: "airport-title" }, [
+                  _vm._v(_vm._s(_vm.flightInformation["departure_airport"]))
+                ]),
+                _c("br"),
+                _vm._v(" "),
+                _c("span", { staticClass: "airport-small" }, [
+                  _vm._v(
+                    _vm._s(_vm.flightInformation["departure_airport_iata"])
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _vm._m(0),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md" }, [
+                _c("span", { staticClass: "airport-title" }, [
+                  _vm._v(_vm._s(_vm.flightInformation["arrival_airport"]))
+                ]),
+                _c("br"),
+                _vm._v(" "),
+                _c("span", { staticClass: "airport-small" }, [
+                  _vm._v(_vm._s(_vm.flightInformation["arrival_airport_iata"]))
+                ])
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "row row-spacer", attrs: { align: "center" } },
+            [
+              _c("div", { staticClass: "col-md" }, [
+                _c("table", { staticClass: "table schedule" }, [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _c("tbody", [
+                    _c("tr", [
+                      _c("th", [_vm._v("Departure")]),
+                      _vm._v(" "),
+                      _c("th", [
+                        _vm._v(
+                          _vm._s(_vm.flightInformation["departure_estimated"])
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("th", [
+                        _vm._v(
+                          _vm._s(_vm.flightInformation["departure_actual"])
+                        )
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("tr", [
+                      _c("th", [_vm._v("Arrival")]),
+                      _vm._v(" "),
+                      _c("th", [
+                        _vm._v(
+                          _vm._s(_vm.flightInformation["arrival_estimated"])
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("th", [
+                        _vm._v(_vm._s(_vm.flightInformation["arrival_actual"]))
+                      ])
+                    ])
+                  ])
+                ])
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "row row-spacer" }, [
+            _vm._v("\n            //TODO Plane info :D\n        ")
+          ])
+        ])
+      ])
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-md" }, [
+      _c("i", { staticClass: "fas fa-plane fa-2x" })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { attrs: { scope: "col" } }, [
+          _c(
+            "span",
+            {
+              staticClass: "badge badge-success",
+              staticStyle: { width: "100%" }
+            },
+            [_vm._v("On Schedule")]
+          )
+        ]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Estimated")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Actual")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-b468b010", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

@@ -20,6 +20,17 @@
         <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
+                    <a class="nav-link">
+                        <input class="form-check-input" type="checkbox" id="showATC" v-model="showATC" v-bind:onchange="changeShowATC">
+                        <label class="form-check-label" for="showATC">
+                            Show ATC
+                        </label>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link">|</a>
+                </li>
+                <li class="nav-item">
                     <a id="engine-replace-client_count" class="nav-link">Serving <strong>{{ totalClients }}</strong> clients</a>
                 </li>
             </ul>
@@ -31,7 +42,7 @@
     export default {
         data: function(){
             return {
-
+                showATC: true
             }
         },
 
@@ -42,6 +53,10 @@
         computed: {
             totalClients(){
                 return this.$store.state.totalClients;
+            },
+
+            changeShowATC(){
+                return this.$store.commit('setShowATC', this.showATC);
             }
         }
     }

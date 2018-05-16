@@ -18,10 +18,31 @@ window.Vue = require('vue');
 Vue.use(Vuex);
 Vue.component('map-component', require('./components/MapComponent.vue'));
 Vue.component('navbar-component', require('./components/NavbarComponent.vue'));
+Vue.component('sidebar-component', require('./components/SidebarComponent.vue'));
 
 const store = new Vuex.Store({
     state: {
-        totalClients: 0
+        totalClients: 0,
+        showATC: true,
+
+        showSidebar: false,
+        flightInformation: {
+            'image': 'none',
+            'flightnr': 'replace-me',
+            'departure_airport': 'replace-me',
+            'departure_airport_iata': 'replace-me',
+            'arrival_airport': 'replace-me',
+            'arrival_airport_iata': 'replace-me',
+            'departure_estimated': '--:--',
+            'departure_actual': '--:--',
+            'arrival_estimated': '--:--',
+            'arrival_actual': '--:--'
+        }
+    },
+    mutations: {
+        setShowATC(state, payload){
+            state.showATC = payload;
+        }
     }
 });
 const navbarData = new Vue({

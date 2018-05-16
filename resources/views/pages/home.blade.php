@@ -7,6 +7,7 @@
     <link href="{{ asset('css/flightinfo.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/leaflet.css') }}" rel="stylesheet" type="text/css">
     <div id="app" class="wrapper">
+        <sidebar-component></sidebar-component>
         <div class="container-fluid">
             <map-component></map-component>
         </div>
