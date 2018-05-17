@@ -12,3 +12,9 @@
 */
 
 Route::get('/', 'HomeController@index');
+Route::get('/faq', function(){
+   return view('pages/faq');
+});
+/*route::get('/features', function(){
+   return view('pages/features');
+});*/

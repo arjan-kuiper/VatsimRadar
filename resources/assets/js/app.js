@@ -24,6 +24,7 @@ const store = new Vuex.Store({
     state: {
         totalClients: 0,
         showATC: true,
+        searchQuery: '',
 
         showSidebar: false,
         flightInformation: {
@@ -33,6 +34,7 @@ const store = new Vuex.Store({
             'departure_airport_iata': 'replace-me',
             'arrival_airport': 'replace-me',
             'arrival_airport_iata': 'replace-me',
+            'travel_percentage': 0,
             'departure_estimated': '--:--',
             'departure_actual': '--:--',
             'arrival_estimated': '--:--',
@@ -42,6 +44,9 @@ const store = new Vuex.Store({
     mutations: {
         setShowATC(state, payload){
             state.showATC = payload;
+        },
+        setSearchQuery(state, payload){
+            state.searchQuery = payload;
         }
     }
 });
