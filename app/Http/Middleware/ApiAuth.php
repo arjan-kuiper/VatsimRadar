@@ -6,7 +6,6 @@ use Closure;
 
 class ApiAuth
 {
-    private $allowedDomains = array("localhost", "127.0.0.1", "http://vatsimradar.com/", "79.137.83.171");
     /**
      * Handle an incoming request.
      *

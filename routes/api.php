@@ -13,12 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(['middleware' => ['apiauth']], function(){
-    Route::get('/clientdata', 'MapRenderController@getServers');
-    Route::get('/airacdata/fixes/{fixcollection}', 'AiracController@getFixes');
-    Route::get('/airport/{airport}/{datatype?}', 'AirportController@getAirport');
-    Route::get('/aircraft/{iata}/{model}', 'AircraftController@getAircraftImage');
-    Route::get('/aircraft', ['uses' => 'AircraftController@processURL']);
-});
+Route::get('/clientdata', 'MapRenderController@getServers');
+Route::get('/airacdata/fixes/{fixcollection}', 'AiracController@getFixes');
+Route::get('/airport/{airport}/{datatype?}', 'AirportController@getAirport');
+Route::get('/aircraft/{iata}/{model}', 'AircraftController@getAircraftImage');
+Route::get('/aircraft', ['uses' => 'AircraftController@processURL']);
+
 
 
