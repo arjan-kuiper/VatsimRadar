@@ -6,6 +6,7 @@ use Closure;
 
 class ApiAuth
 {
+    private $allowedDomains = array("localhost", "127.0.0.1", "vatsimradar.com", "79.137.83.171");
     /**
      * Handle an incoming request.
      *
@@ -15,7 +16,7 @@ class ApiAuth
      */
     public function handle($request, Closure $next)
     {
-        if($request->ip() != "localhost" && $request->ip() != "127.0.0.1"){
+        if(!in_array($request->ip(), $this->allowedDomains)){
             return response('Unauthorized', 401);
         }
         return $next($request);
