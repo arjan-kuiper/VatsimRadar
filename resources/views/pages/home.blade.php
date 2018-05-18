@@ -7,9 +7,9 @@
     <link href="{{ asset('css/leaflet.css') }}" rel="stylesheet" type="text/css">
 
     <!-- FOR PRODUCTION -->
-    {{--<script>
+    <script>
         console.log = function(){}
-    </script>--}}
+    </script>
 
     <div id="app" class="wrapper">
         <sidebar-component></sidebar-component>
