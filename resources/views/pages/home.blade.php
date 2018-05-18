@@ -3,9 +3,14 @@
 @section('content')
     <link href="{{ asset('css/map.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/please-wait.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('css/default.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/flightinfo.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/leaflet.css') }}" rel="stylesheet" type="text/css">
+
+    <!-- FOR PRODUCTION -->
+    <script>
+        console.log = function(){}
+    </script>
+
     <div id="app" class="wrapper">
         <sidebar-component></sidebar-component>
         <div class="container-fluid">

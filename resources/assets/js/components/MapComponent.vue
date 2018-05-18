@@ -1,11 +1,37 @@
 <template>
     <div>
         <div id="radar-map" v-bind:id="mapName"></div>
-        <div>{{ showATC }}</div>
+        <div>{{ showATC }}</div><div>{{ searchQuery }}</div>
+
+        <!-- No flight info modal -->
+        <div class="modal fade" id="noFlightData" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Oh no!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        We couldn't retrieve any information about this flight.<br>
+                        This pilot must have forgotten to fill in his flightplan. 📋
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-dismiss="modal">Copy!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
+    // Function to get the differences between arrays. Used for removing markers
+    Array.prototype.diff = function(a){
+        return this.filter(function(i){ return a.indexOf(i) < 0; });
+    };
+
     import axios from 'axios';
 
     export default {
@@ -17,16 +43,17 @@
                 mapName: "radar-map",
                 clients: [],
                 markers: [],
-                loaded: false
+                loaded: false,
+                lastSearchQuery: ''
             }
         },
 
         mounted() {
             console.log('Map mounted.');
 
-            this.map = L.map('radar-map', {zoomControl: false}).setView([51.505, -0.09], 13);
+            this.map = L.map('radar-map', {zoomControl: false}).setView([51.260197, 4.402771], 6);
             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
+                attribution: 'VatsimRadar 📡 is powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
                 id: 'mapbox.dark',
                 accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw'
@@ -58,26 +85,18 @@
             },
 
             loadClients: function(){
+                if(this.map === undefined) return;
+                let self = this;
+                this.map.eachLayer(function(layer){
+                    if(layer.identifier === 'PILOT' || layer.identifier === 'ATC')
+                        self.map.removeLayer(layer);
+                });
                 for(let i = 0; i < this.clients.length; i++){
-                    if(this.markers[this.clients[i].cid] === undefined){
-                        if(this.clients[i].clienttype === 'PILOT'){
-                            this.addMarker(this.clients[i], this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
-                        }else if(this.clients[i].clienttype === 'ATC'){
-                            this.addATC(this.clients[i], this.clients[i].callsign.slice(-3), this.clients[i].latitude, this.clients[i].longitude);
-                        }
-                    }else{
-                        if(this.clients[i].clienttype === 'PILOT' || this.clients[i].clienttype === 'ATC'){
-                            if(this.clients[i].latitude !== undefined && this.clients[i].longitude !== undefined){
-                                this.markers[this.clients[i].cid].setLatLng(new L.LatLng(parseFloat(this.clients[i].latitude), parseFloat(this.clients[i].longitude)));
-                            }
-                        }
-                    }
+                    this.addMarker(this.clients[i], this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
                 }
-                this.removeUnusedMarkers();
             },
 
-            addMarker: function(pilot, lat, lon, heading){
-                let cid = pilot.cid;
+            addMarker: function(client, lat, lon, heading){
                 lat = parseFloat(lat);
                 lon = parseFloat(lon);
 
@@ -87,76 +106,60 @@
                     iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
                 });
 
-                if(!isNaN(lat) && !isNaN(lon)){
-                    this.markers[cid] = L.marker([lat, lon], {icon: icon, rotationAngle: heading}).addTo(this.map);
-                    this.markers[cid].last_update = new Date();
-                    this.markers[cid].identifier = 'PILOT';
+                if(!isNaN(lat) && !isNaN(lon)) {
+                    if(client.clienttype === 'PILOT'){
+                        let marker = L.marker([lat, lon], {icon: icon, rotationAngle: heading}).addTo(this.map);
+                        marker.identifier = 'PILOT';
 
-                    // Info tooltip
-                    this.markers[cid].bindTooltip(
-                        pilot.callsign
-                    ,{
-                        offset: [-22, 0],
-                        tooltipAnchor: [22, 22],
-                        direction: 'left'
-                    });
+                        // Info tooltip
+                        marker.bindTooltip(
+                            client.callsign
+                            ,{
+                                offset: [-22, 0],
+                                tooltipAnchor: [22, 22],
+                                direction: 'left'
+                            });
 
-                    // Data for the sidebar and show it
-                    let self = this;
-                    this.markers[cid].on('click', function(){
-                        console.log(pilot.callsign + ' - ' + pilot.planned_aircraft);
-                        self.showFlightInfo(pilot);
-                    });
-                }
-            },
+                        // Data for the sidebar and show it
+                        let self = this;
+                        marker.on('click', function(){
+                            console.log(client.callsign + ' - ' + client.planned_aircraft);
+                            self.showFlightInfo(client);
+                        });
 
-            addATC: function(atc, type, lat, lon){
-                let cid = atc.cid;
-                let radius = {
-                    'GND': [5000, 'gray'],
-                    'TWR': [25000, 'blue'],
-                    'APP': [50000, 'red']
-                };
-                if(type === 'TIS'){ type = 'ATIS'; }
-                if(type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
+                        client.marker = marker;
+                        return marker;
+                    }else if(client.clienttype === 'ATC'){
+                        if(!this.$store.state.showATC) return;
+                        let radius = {
+                            'GND': [5000, 'gray'],
+                            'TWR': [25000, 'blue'],
+                            'APP': [50000, 'red']
+                        };
+                        let type = client.callsign.slice(-3);
+                        if(type === 'TIS'){ type = 'ATIS'; }
+                        if(type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
 
-                this.markers[cid] = L.circle([parseFloat(lat),parseFloat(lon)], {
-                    color: radius[type][1],
-                    fillColor: radius[type][1],
-                    fillOpacity: 0.5,
-                    radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
-                }).addTo(this.map);
-                this.markers[cid].last_update = new Date();
-                this.markers[cid].identifier = 'ATC';
+                        let marker = L.circle([parseFloat(lat),parseFloat(lon)], {
+                            color: radius[type][1],
+                            fillColor: radius[type][1],
+                            fillOpacity: 0.5,
+                            radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
+                        }).addTo(this.map);
 
-                // Build an info tooltip
-                this.markers[cid].bindTooltip(
-                    '<strong>' + atc.callsign + '</strong><br>' +
-                    'Frequency: ' + atc.frequency + '</br>' +
-                    'Visual Range: ' + atc.visualrange + 'nm</br>' +
-                    'Rating: ' + atc.rating
-                );
-            },
+                        marker.identifier = 'ATC';
 
-            removeUnusedMarkers: function(){
-                let toRemove = [];
-                this.markers.forEach((marker) => {
-                    if ((new Date() - marker.last_update) > 1000 * 60 * 2) {
-                        toRemove.push(marker);
+                        // Build an info tooltip
+                        marker.bindTooltip(
+                            '<strong>' + client.callsign + '</strong><br>' +
+                            'Frequency: ' + client.frequency + '</br>' +
+                            'Visual Range: ' + client.visualrange + 'nm</br>' +
+                            'Rating: ' + client.rating
+                        );
+
+                        client.marker = marker;
+                        return marker;
                     }
-                });
-                if (toRemove.length > 0) {
-                    let clientIds = [];
-                    for (let i = 0; i < this.clients.length; i++) {
-                        clientIds.push(this.clients[i].cid);
-                    }
-                    toRemove.forEach((marker, markerId) => {
-                        if (clientIds.indexOf(markerId) > -1) {
-                            marker.setMap(null);
-                            this.markers.splice(this.markers.indexOf(marker), 1);
-                        }
-                    });
-                    console.log('Removed ' + toRemove.length + ' disconnected clients');
                 }
             },
 
@@ -178,7 +181,9 @@
                  */
                 let aircraftType = 'UNKNOWN';
                 aircraftType = (pilot.planned_aircraft.indexOf('B738') >= 0 || pilot.planned_aircraft.indexOf('B737') >= 0) >= 0 ? 'B738' : aircraftType;
+                aircraftType = pilot.planned_aircraft.indexOf('B744') >= 0 ? 'B744' : aircraftType;
                 aircraftType = pilot.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
+                aircraftType = pilot.planned_aircraft.indexOf('A319') >= 0 ? 'A319' : aircraftType;
                 aircraftType = pilot.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
                 let airline = pilot.callsign.substr(0, 3);
                 /*
@@ -202,6 +207,14 @@
 
                     plannedArrival = [newHours, newMinutes];
                 }
+                let departureSeconds = (plannedDeptime === '--:--' ? 0 : (plannedDeptime[0] * 60 * 60)) + (plannedDeptime[1] * 60);
+                let arrivalSeconds = plannedArrival === '--:--' ? 0 : (plannedArrival[0] * 60 * 60) + plannedArrival[1] * 60;
+                let currentSeconds = (new Date().getUTCHours() * 60 * 60) + (new Date().getUTCMinutes() * 60);
+                let percentage_covered = Math.round((currentSeconds - departureSeconds) / (arrivalSeconds - departureSeconds) * 100);
+                console.log('DEP: ' + departureSeconds);
+                console.log('CUR: ' + currentSeconds);
+                console.log('ARR: ' + arrivalSeconds);
+                console.log('%: ' + percentage_covered);
 
                 let promises = [];
                 promises.push(axios.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
@@ -212,33 +225,38 @@
                     self.$store.state.flightInformation['image'] = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
                     self.$store.state.flightInformation['flightnr'] = pilot.callsign;
                     self.$store.state.flightInformation['departure_airport'] = pilot.planned_depairport;
-                    self.$store.state.flightInformation['departure_airport_iata'] = result[0].data;
+                    self.$store.state.flightInformation['departure_airport_iata'] = (result[0].data === 404) ? 'N/A' : result[0].data;
                     self.$store.state.flightInformation['arrival_airport'] = pilot.planned_destairport;
-                    self.$store.state.flightInformation['arrival_airport_iata'] = result[1].data;
+                    self.$store.state.flightInformation['arrival_airport_iata'] = (result[1].data === 404) ? 'N/A' : result[1].data;
+                    self.$store.state.flightInformation['travel_percentage'] = (isNaN(percentage_covered) || percentage_covered < 0) ? 0 : percentage_covered;
                     self.$store.state.flightInformation['departure_estimated'] = plannedDeptime === '--:--' ? plannedDeptime : (plannedDeptime[0] + ':' + plannedDeptime[1]);
                     self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : (plannedActualDeptime[0] + ':' + plannedActualDeptime[1]);
                     self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : (plannedArrival[0] + ':' + plannedArrival[1]);
                     self.$store.state.showSidebar = true;
+                }).catch(function(error){
+                    $('#noFlightData').modal('show');
                 });
             }
         },
 
         computed: {
             showATC(){
-                if(this.$store.state.showATC === true){
-                    this.markers.forEach((marker, markerIndex) =>{
-                        if(marker.identifier === 'ATC'){
-                            this.map.addLayer(marker);
-                        }
-                    });
-                }else{
-                    this.markers.forEach((marker, markerIndex) =>{
-                        if(marker.identifier === 'ATC'){
-                            this.map.removeLayer(marker);
-                        }
+                this.loadClients();
+                return this.$store.state.showATC;
+            },
+
+            searchQuery(){
+                let query = this.$store.state.searchQuery;
+                if(query === this.lastSearchQuery) return;
+                if(query.length > 3){
+                    query = query.toUpperCase();
+                    this.clients.forEach((client) =>{
+                       if(query === client.callsign){
+                           this.map.setView([parseFloat(client.latitude), parseFloat(client.longitude)], 12);
+                           this.lastSearchQuery = query;
+                       }
                     });
                 }
-                return this.$store.state.showATC;
             }
         }
     }

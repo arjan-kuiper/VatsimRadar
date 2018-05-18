@@ -70,7 +70,7 @@
 "use strict";
 
 
-var bind = __webpack_require__(6);
+var bind = __webpack_require__(7);
 var isBuffer = __webpack_require__(21);
 
 /*global toString:true*/
@@ -424,10 +424,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(8);
+    adapter = __webpack_require__(9);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(8);
+    adapter = __webpack_require__(9);
   }
   return adapter;
 }
@@ -502,10 +502,119 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file.
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3034,7 +3143,7 @@ Popper.Defaults = Defaults;
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)))
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -13405,13 +13514,13 @@ return jQuery;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(20);
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13429,7 +13538,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -13619,7 +13728,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13630,7 +13739,7 @@ var settle = __webpack_require__(24);
 var buildURL = __webpack_require__(26);
 var parseHeaders = __webpack_require__(27);
 var isURLSameOrigin = __webpack_require__(28);
-var createError = __webpack_require__(9);
+var createError = __webpack_require__(10);
 var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(29);
 
 module.exports = function xhrAdapter(config) {
@@ -13806,7 +13915,7 @@ module.exports = function xhrAdapter(config) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13831,7 +13940,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13843,7 +13952,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13869,120 +13978,11 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-/* globals __VUE_SSR_CONTEXT__ */
-
-// IMPORTANT: Do NOT use ES2015 features in this file.
-// This module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle.
-
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
-  functionalTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier /* server only */
-) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
-
-  // ES6 modules interop
-  var type = typeof rawScriptExports.default
-  if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
-  }
-
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
-    options._compiled = true
-  }
-
-  // functional template
-  if (functionalTemplate) {
-    options.functional = true
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = injectStyles
-  }
-
-  if (hook) {
-    var functional = options.functional
-    var existing = functional
-      ? options.render
-      : options.beforeCreate
-
-    if (!functional) {
-      // inject component registration as beforeCreate hook
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    } else {
-      // for template-only hot-reload because in that case the render fn doesn't
-      // go through the normalizer
-      options._injectStyles = hook
-      // register for functioal component in vue file
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return existing(h, context)
-      }
-    }
-  }
-
-  return {
-    esModule: esModule,
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(14);
-module.exports = __webpack_require__(47);
+module.exports = __webpack_require__(50);
 
 
 /***/ }),
@@ -14012,12 +14012,13 @@ window.Vue = __webpack_require__(38);
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */]);
 Vue.component('map-component', __webpack_require__(41));
 Vue.component('navbar-component', __webpack_require__(44));
-Vue.component('sidebar-component', __webpack_require__(52));
+Vue.component('sidebar-component', __webpack_require__(47));
 
 var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
     state: {
         totalClients: 0,
         showATC: true,
+        searchQuery: '',
 
         showSidebar: false,
         flightInformation: {
@@ -14027,6 +14028,7 @@ var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
             'departure_airport_iata': 'replace-me',
             'arrival_airport': 'replace-me',
             'arrival_airport_iata': 'replace-me',
+            'travel_percentage': 0,
             'departure_estimated': '--:--',
             'departure_actual': '--:--',
             'arrival_estimated': '--:--',
@@ -14036,6 +14038,9 @@ var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
     mutations: {
         setShowATC: function setShowATC(state, payload) {
             state.showATC = payload;
+        },
+        setSearchQuery: function setSearchQuery(state, payload) {
+            state.searchQuery = payload;
         }
     }
 });
@@ -14999,7 +15004,7 @@ var index_esm = {
 
 
 window._ = __webpack_require__(17);
-window.Popper = __webpack_require__(3).default;
+window.Popper = __webpack_require__(4).default;
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -15008,7 +15013,7 @@ window.Popper = __webpack_require__(3).default;
  */
 
 try {
-  window.$ = window.jQuery = __webpack_require__(4);
+  window.$ = window.jQuery = __webpack_require__(5);
 
   __webpack_require__(19);
 } catch (e) {}
@@ -15019,7 +15024,7 @@ try {
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
 
-window.axios = __webpack_require__(5);
+window.axios = __webpack_require__(6);
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
@@ -32205,7 +32210,7 @@ module.exports = function(module) {
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
 (function (global, factory) {
-   true ? factory(exports, __webpack_require__(4), __webpack_require__(3)) :
+   true ? factory(exports, __webpack_require__(5), __webpack_require__(4)) :
   typeof define === 'function' && define.amd ? define(['exports', 'jquery', 'popper.js'], factory) :
   (factory((global.bootstrap = {}),global.jQuery,global.Popper));
 }(this, (function (exports,$,Popper) { 'use strict';
@@ -36136,7 +36141,7 @@ module.exports = function(module) {
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(6);
+var bind = __webpack_require__(7);
 var Axios = __webpack_require__(22);
 var defaults = __webpack_require__(2);
 
@@ -36171,9 +36176,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(11);
+axios.Cancel = __webpack_require__(12);
 axios.CancelToken = __webpack_require__(36);
-axios.isCancel = __webpack_require__(10);
+axios.isCancel = __webpack_require__(11);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -36326,7 +36331,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(9);
+var createError = __webpack_require__(10);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -36759,7 +36764,7 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(33);
-var isCancel = __webpack_require__(10);
+var isCancel = __webpack_require__(11);
 var defaults = __webpack_require__(2);
 var isAbsoluteURL = __webpack_require__(34);
 var combineURLs = __webpack_require__(35);
@@ -36919,7 +36924,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(11);
+var Cancel = __webpack_require__(12);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -48237,14 +48242,14 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(7)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(8)))
 
 /***/ }),
 /* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(12)
+var normalizeComponent = __webpack_require__(3)
 /* script */
 var __vue_script__ = __webpack_require__(42)
 /* template */
@@ -48292,7 +48297,7 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 //
 //
@@ -48301,6 +48306,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+// Function to get the differences between arrays. Used for removing markers
+Array.prototype.diff = function (a) {
+    return this.filter(function (i) {
+        return a.indexOf(i) < 0;
+    });
+};
 
 
 
@@ -48313,16 +48346,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             mapName: "radar-map",
             clients: [],
             markers: [],
-            loaded: false
+            loaded: false,
+            lastSearchQuery: ''
         };
     },
 
     mounted: function mounted() {
         console.log('Map mounted.');
 
-        this.map = L.map('radar-map', { zoomControl: false }).setView([51.505, -0.09], 13);
+        this.map = L.map('radar-map', { zoomControl: false }).setView([51.260197, 4.402771], 6);
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
+            attribution: 'VatsimRadar 📡 is powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
             maxZoom: 18,
             id: 'mapbox.dark',
             accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw'
@@ -48357,26 +48391,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
 
         loadClients: function loadClients() {
+            if (this.map === undefined) return;
+            var self = this;
+            this.map.eachLayer(function (layer) {
+                if (layer.identifier === 'PILOT' || layer.identifier === 'ATC') self.map.removeLayer(layer);
+            });
             for (var i = 0; i < this.clients.length; i++) {
-                if (this.markers[this.clients[i].cid] === undefined) {
-                    if (this.clients[i].clienttype === 'PILOT') {
-                        this.addMarker(this.clients[i], this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
-                    } else if (this.clients[i].clienttype === 'ATC') {
-                        this.addATC(this.clients[i], this.clients[i].callsign.slice(-3), this.clients[i].latitude, this.clients[i].longitude);
-                    }
-                } else {
-                    if (this.clients[i].clienttype === 'PILOT' || this.clients[i].clienttype === 'ATC') {
-                        if (this.clients[i].latitude !== undefined && this.clients[i].longitude !== undefined) {
-                            this.markers[this.clients[i].cid].setLatLng(new L.LatLng(parseFloat(this.clients[i].latitude), parseFloat(this.clients[i].longitude)));
-                        }
-                    }
-                }
+                this.addMarker(this.clients[i], this.clients[i].latitude, this.clients[i].longitude, this.clients[i].heading);
             }
-            this.removeUnusedMarkers();
         },
 
-        addMarker: function addMarker(pilot, lat, lon, heading) {
-            var cid = pilot.cid;
+        addMarker: function addMarker(client, lat, lon, heading) {
             lat = parseFloat(lat);
             lon = parseFloat(lon);
 
@@ -48387,72 +48412,54 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
 
             if (!isNaN(lat) && !isNaN(lon)) {
-                this.markers[cid] = L.marker([lat, lon], { icon: icon, rotationAngle: heading }).addTo(this.map);
-                this.markers[cid].last_update = new Date();
-                this.markers[cid].identifier = 'PILOT';
+                if (client.clienttype === 'PILOT') {
+                    var marker = L.marker([lat, lon], { icon: icon, rotationAngle: heading }).addTo(this.map);
+                    marker.identifier = 'PILOT';
 
-                // Info tooltip
-                this.markers[cid].bindTooltip(pilot.callsign, {
-                    offset: [-22, 0],
-                    tooltipAnchor: [22, 22],
-                    direction: 'left'
-                });
+                    // Info tooltip
+                    marker.bindTooltip(client.callsign, {
+                        offset: [-22, 0],
+                        tooltipAnchor: [22, 22],
+                        direction: 'left'
+                    });
 
-                // Data for the sidebar and show it
-                var self = this;
-                this.markers[cid].on('click', function () {
-                    console.log(pilot.callsign + ' - ' + pilot.planned_aircraft);
-                    self.showFlightInfo(pilot);
-                });
-            }
-        },
+                    // Data for the sidebar and show it
+                    var self = this;
+                    marker.on('click', function () {
+                        console.log(client.callsign + ' - ' + client.planned_aircraft);
+                        self.showFlightInfo(client);
+                    });
 
-        addATC: function addATC(atc, type, lat, lon) {
-            var cid = atc.cid;
-            var radius = {
-                'GND': [5000, 'gray'],
-                'TWR': [25000, 'blue'],
-                'APP': [50000, 'red']
-            };
-            if (type === 'TIS') {
-                type = 'ATIS';
-            }
-            if (type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
-
-            this.markers[cid] = L.circle([parseFloat(lat), parseFloat(lon)], {
-                color: radius[type][1],
-                fillColor: radius[type][1],
-                fillOpacity: 0.5,
-                radius: !isNaN(radius[type][0]) ? radius[type][0] : 0
-            }).addTo(this.map);
-            this.markers[cid].last_update = new Date();
-            this.markers[cid].identifier = 'ATC';
-
-            // Build an info tooltip
-            this.markers[cid].bindTooltip('<strong>' + atc.callsign + '</strong><br>' + 'Frequency: ' + atc.frequency + '</br>' + 'Visual Range: ' + atc.visualrange + 'nm</br>' + 'Rating: ' + atc.rating);
-        },
-
-        removeUnusedMarkers: function removeUnusedMarkers() {
-            var _this2 = this;
-
-            var toRemove = [];
-            this.markers.forEach(function (marker) {
-                if (new Date() - marker.last_update > 1000 * 60 * 2) {
-                    toRemove.push(marker);
-                }
-            });
-            if (toRemove.length > 0) {
-                var clientIds = [];
-                for (var i = 0; i < this.clients.length; i++) {
-                    clientIds.push(this.clients[i].cid);
-                }
-                toRemove.forEach(function (marker, markerId) {
-                    if (clientIds.indexOf(markerId) > -1) {
-                        marker.setMap(null);
-                        _this2.markers.splice(_this2.markers.indexOf(marker), 1);
+                    client.marker = marker;
+                    return marker;
+                } else if (client.clienttype === 'ATC') {
+                    if (!this.$store.state.showATC) return;
+                    var radius = {
+                        'GND': [5000, 'gray'],
+                        'TWR': [25000, 'blue'],
+                        'APP': [50000, 'red']
+                    };
+                    var type = client.callsign.slice(-3);
+                    if (type === 'TIS') {
+                        type = 'ATIS';
                     }
-                });
-                console.log('Removed ' + toRemove.length + ' disconnected clients');
+                    if (type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
+
+                    var _marker = L.circle([parseFloat(lat), parseFloat(lon)], {
+                        color: radius[type][1],
+                        fillColor: radius[type][1],
+                        fillOpacity: 0.5,
+                        radius: !isNaN(radius[type][0]) ? radius[type][0] : 0
+                    }).addTo(this.map);
+
+                    _marker.identifier = 'ATC';
+
+                    // Build an info tooltip
+                    _marker.bindTooltip('<strong>' + client.callsign + '</strong><br>' + 'Frequency: ' + client.frequency + '</br>' + 'Visual Range: ' + client.visualrange + 'nm</br>' + 'Rating: ' + client.rating);
+
+                    client.marker = _marker;
+                    return _marker;
+                }
             }
         },
 
@@ -48474,7 +48481,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
              */
             var aircraftType = 'UNKNOWN';
             aircraftType = (pilot.planned_aircraft.indexOf('B738') >= 0 || pilot.planned_aircraft.indexOf('B737') >= 0) >= 0 ? 'B738' : aircraftType;
+            aircraftType = pilot.planned_aircraft.indexOf('B744') >= 0 ? 'B744' : aircraftType;
             aircraftType = pilot.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
+            aircraftType = pilot.planned_aircraft.indexOf('A319') >= 0 ? 'A319' : aircraftType;
             aircraftType = pilot.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
             var airline = pilot.callsign.substr(0, 3);
             /*
@@ -48517,6 +48526,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 plannedArrival = [newHours, newMinutes];
             }
+            var departureSeconds = (plannedDeptime === '--:--' ? 0 : plannedDeptime[0] * 60 * 60) + plannedDeptime[1] * 60;
+            var arrivalSeconds = plannedArrival === '--:--' ? 0 : plannedArrival[0] * 60 * 60 + plannedArrival[1] * 60;
+            var currentSeconds = new Date().getUTCHours() * 60 * 60 + new Date().getUTCMinutes() * 60;
+            var percentage_covered = Math.round((currentSeconds - departureSeconds) / (arrivalSeconds - departureSeconds) * 100);
+            console.log('DEP: ' + departureSeconds);
+            console.log('CUR: ' + currentSeconds);
+            console.log('ARR: ' + arrivalSeconds);
+            console.log('%: ' + percentage_covered);
 
             var promises = [];
             promises.push(__WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
@@ -48527,35 +48544,39 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 self.$store.state.flightInformation['image'] = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
                 self.$store.state.flightInformation['flightnr'] = pilot.callsign;
                 self.$store.state.flightInformation['departure_airport'] = pilot.planned_depairport;
-                self.$store.state.flightInformation['departure_airport_iata'] = result[0].data;
+                self.$store.state.flightInformation['departure_airport_iata'] = result[0].data === 404 ? 'N/A' : result[0].data;
                 self.$store.state.flightInformation['arrival_airport'] = pilot.planned_destairport;
-                self.$store.state.flightInformation['arrival_airport_iata'] = result[1].data;
+                self.$store.state.flightInformation['arrival_airport_iata'] = result[1].data === 404 ? 'N/A' : result[1].data;
+                self.$store.state.flightInformation['travel_percentage'] = isNaN(percentage_covered) || percentage_covered < 0 ? 0 : percentage_covered;
                 self.$store.state.flightInformation['departure_estimated'] = plannedDeptime === '--:--' ? plannedDeptime : plannedDeptime[0] + ':' + plannedDeptime[1];
                 self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : plannedActualDeptime[0] + ':' + plannedActualDeptime[1];
                 self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : plannedArrival[0] + ':' + plannedArrival[1];
                 self.$store.state.showSidebar = true;
+            }).catch(function (error) {
+                $('#noFlightData').modal('show');
             });
         }
     },
 
     computed: {
         showATC: function showATC() {
-            var _this3 = this;
+            this.loadClients();
+            return this.$store.state.showATC;
+        },
+        searchQuery: function searchQuery() {
+            var _this2 = this;
 
-            if (this.$store.state.showATC === true) {
-                this.markers.forEach(function (marker, markerIndex) {
-                    if (marker.identifier === 'ATC') {
-                        _this3.map.addLayer(marker);
-                    }
-                });
-            } else {
-                this.markers.forEach(function (marker, markerIndex) {
-                    if (marker.identifier === 'ATC') {
-                        _this3.map.removeLayer(marker);
+            var query = this.$store.state.searchQuery;
+            if (query === this.lastSearchQuery) return;
+            if (query.length > 3) {
+                query = query.toUpperCase();
+                this.clients.forEach(function (client) {
+                    if (query === client.callsign) {
+                        _this2.map.setView([parseFloat(client.latitude), parseFloat(client.longitude)], 12);
+                        _this2.lastSearchQuery = query;
                     }
                 });
             }
-            return this.$store.state.showATC;
         }
     }
 });
@@ -48571,10 +48592,85 @@ var render = function() {
   return _c("div", [
     _c("div", { attrs: { id: "radar-map", id: _vm.mapName } }),
     _vm._v(" "),
-    _c("div", [_vm._v(_vm._s(_vm.showATC))])
+    _c("div", [_vm._v(_vm._s(_vm.showATC))]),
+    _c("div", [_vm._v(_vm._s(_vm.searchQuery))]),
+    _vm._v(" "),
+    _vm._m(0)
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
+          id: "noFlightData",
+          tabindex: "-1",
+          role: "dialog",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c(
+          "div",
+          {
+            staticClass: "modal-dialog modal-dialog-centered",
+            attrs: { role: "document" }
+          },
+          [
+            _c("div", { staticClass: "modal-content" }, [
+              _c("div", { staticClass: "modal-header" }, [
+                _c("h5", { staticClass: "modal-title" }, [_vm._v("Oh no!")]),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "close",
+                    attrs: {
+                      type: "button",
+                      "data-dismiss": "modal",
+                      "aria-label": "Close"
+                    }
+                  },
+                  [
+                    _c("span", { attrs: { "aria-hidden": "true" } }, [
+                      _vm._v("×")
+                    ])
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-body" }, [
+                _vm._v(
+                  "\n                    We couldn't retrieve any information about this flight."
+                ),
+                _c("br"),
+                _vm._v(
+                  "\n                    This pilot must have forgotten to fill in his flightplan. 📋\n                "
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-footer" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-warning",
+                    attrs: { type: "button", "data-dismiss": "modal" }
+                  },
+                  [_vm._v("Copy!")]
+                )
+              ])
+            ])
+          ]
+        )
+      ]
+    )
+  }
+]
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
@@ -48589,7 +48685,7 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(12)
+var normalizeComponent = __webpack_require__(3)
 /* script */
 var __vue_script__ = __webpack_require__(45)
 /* template */
@@ -48677,11 +48773,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            showATC: true
+            showATC: true,
+            searchQuery: ''
         };
     },
 
@@ -48696,6 +48804,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         changeShowATC: function changeShowATC() {
             return this.$store.commit('setShowATC', this.showATC);
+        },
+        submitSearch: function submitSearch() {
+            this.searchQuery = this.searchQuery.toUpperCase();
+            return this.$store.commit('setSearchQuery', this.searchQuery);
         }
     }
 });
@@ -48721,11 +48833,43 @@ var render = function() {
       _vm._v(" "),
       _vm._m(2),
       _vm._v(" "),
+      _c("div", { staticClass: "mx-auto order-0" }, [
+        _c("div", [
+          _c("div", { staticClass: "input-group mb-2" }, [
+            _vm._m(3),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.searchQuery,
+                  expression: "searchQuery"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: {
+                onchange: _vm.submitSearch,
+                type: "text",
+                placeholder: "Search by callsign"
+              },
+              domProps: { value: _vm.searchQuery },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.searchQuery = $event.target.value
+                }
+              }
+            })
+          ])
+        ])
+      ]),
+      _vm._v(" "),
       _c(
         "div",
-        {
-          staticClass: "navbar-collapse collapse w-100 order-3 dual-collapse2"
-        },
+        { staticClass: "navbar-collapse collapse order-3 dual-collapse2" },
         [
           _c("ul", { staticClass: "navbar-nav ml-auto" }, [
             _c("li", { staticClass: "nav-item" }, [
@@ -48788,7 +48932,7 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm._m(3),
+            _vm._m(4),
             _vm._v(" "),
             _c("li", { staticClass: "nav-item" }, [
               _c(
@@ -48848,32 +48992,35 @@ var staticRenderFns = [
       "div",
       {
         staticClass:
-          "collapse navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2",
+          "collapse navbar-collapse collapse order-1 order-md-0 dual-collapse2",
         attrs: { id: "navbarNav" }
       },
       [
         _c("ul", { staticClass: "navbar-nav" }, [
           _c("li", { staticClass: "nav-item" }, [
-            _c("a", { staticClass: "nav-link", attrs: { href: "#" } }, [
-              _vm._v("Live Map "),
-              _c("span", { staticClass: "sr-only" }, [_vm._v("(current)")])
+            _c("a", { staticClass: "nav-link active", attrs: { href: "#" } }, [
+              _vm._v("Live Map")
             ])
           ]),
           _vm._v(" "),
           _c("li", { staticClass: "nav-item" }, [
-            _c("a", { staticClass: "nav-link", attrs: { href: "#" } }, [
-              _vm._v("Features")
-            ])
-          ]),
-          _vm._v(" "),
-          _c("li", { staticClass: "nav-item" }, [
-            _c("a", { staticClass: "nav-link", attrs: { href: "#" } }, [
+            _c("a", { staticClass: "nav-link", attrs: { href: "/faq" } }, [
               _vm._v("FAQ")
             ])
           ])
         ])
       ]
     )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-prepend" }, [
+      _c("div", { staticClass: "input-group-text" }, [
+        _c("i", { staticClass: "fas fa-search" })
+      ])
+    ])
   },
   function() {
     var _vm = this
@@ -48893,24 +49040,14 @@ if (false) {
 
 /***/ }),
 /* 47 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(12)
+var normalizeComponent = __webpack_require__(3)
 /* script */
-var __vue_script__ = __webpack_require__(53)
+var __vue_script__ = __webpack_require__(48)
 /* template */
-var __vue_template__ = __webpack_require__(54)
+var __vue_template__ = __webpack_require__(49)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -48949,11 +49086,15 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 53 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
 //
 //
 //
@@ -49022,6 +49163,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
 
+    methods: {
+        isMobile: function isMobile() {
+            var check = false;
+            (function (a) {
+                if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true;
+            })(navigator.userAgent || navigator.vendor || window.opera);
+            console.log('Mobile: ' + check);
+            return check;
+        }
+    },
+
     computed: {
         showSidebar: function showSidebar() {
             return this.$store.state.showSidebar;
@@ -49033,14 +49185,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 54 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm.showSidebar
+  return _vm.showSidebar && !_vm.isMobile()
     ? _c("nav", { attrs: { id: "sidebar" } }, [
         _c("div", { staticClass: "sidebar-header" }, [
           _c("img", {
@@ -49100,6 +49252,20 @@ var render = function() {
             ]
           ),
           _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-md" }, [
+              _c("div", { staticClass: "progress" }, [
+                _c("div", {
+                  staticClass: "progress-bar progress-bar-striped bg-warning",
+                  style: {
+                    width: _vm.flightInformation["travel_percentage"] + "%"
+                  },
+                  attrs: { role: "progressbar" }
+                })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
           _c(
             "div",
             { staticClass: "row row-spacer", attrs: { align: "center" } },
@@ -49142,11 +49308,7 @@ var render = function() {
                 ])
               ])
             ]
-          ),
-          _vm._v(" "),
-          _c("div", { staticClass: "row row-spacer" }, [
-            _vm._v("\n            //TODO Plane info :D\n        ")
-          ])
+          )
         ])
       ])
     : _vm._e()
@@ -49192,6 +49354,12 @@ if (false) {
     require("vue-hot-reload-api")      .rerender("data-v-b468b010", module.exports)
   }
 }
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);

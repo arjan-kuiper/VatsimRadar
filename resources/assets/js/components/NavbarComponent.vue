@@ -4,20 +4,31 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2" id="navbarNav">
+        <div class="collapse navbar-collapse collapse order-1 order-md-0 dual-collapse2" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Live Map <span class="sr-only">(current)</span></a>
+                    <a class="nav-link active" href="#">Live Map</a>
                 </li>
+                <!--<li class="nav-item">
+                    <a class="nav-link" href="/features">Features</a>
+                </li>-->
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">FAQ</a>
+                    <a class="nav-link" href="/faq">FAQ</a>
                 </li>
             </ul>
         </div>
-        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+        <div class="mx-auto order-0">
+            <div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-search"></i></div>
+                    </div>
+                    <input v-model="searchQuery" v-bind:onchange="submitSearch"
+                           type="text" class="form-control" placeholder="Search by callsign">
+                </div>
+            </div>
+        </div>
+        <div class="navbar-collapse collapse order-3 dual-collapse2">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link">
@@ -42,7 +53,8 @@
     export default {
         data: function(){
             return {
-                showATC: true
+                showATC: true,
+                searchQuery: ''
             }
         },
 
@@ -57,6 +69,10 @@
 
             changeShowATC(){
                 return this.$store.commit('setShowATC', this.showATC);
+            },
+            submitSearch(){
+                this.searchQuery = this.searchQuery.toUpperCase();
+                return this.$store.commit('setSearchQuery', this.searchQuery);
             }
         }
     }
