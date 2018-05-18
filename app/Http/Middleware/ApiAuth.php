@@ -16,9 +16,6 @@ class ApiAuth
      */
     public function handle($request, Closure $next)
     {
-        if(!in_array($request->ip(), $this->allowedDomains)){
-            return response('Unauthorized', 401);
-        }
         return $next($request);
     }
 }
