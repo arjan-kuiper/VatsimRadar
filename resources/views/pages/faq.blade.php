@@ -57,7 +57,8 @@
                             <p class="card-text">VatsimRadar is devoting serious effort to supply as much aircraft imagery as possible
                             but there are <strong>a lot</strong> of different airlines and <strong>a lot</strong> of different aircraft.
                             VatsimRadar is working together with <a href="https://www.aviationimagenetwork.com/">Aviation Image Network</a> to
-                            hopefully provide all the required imagery in the near future.</p>
+                            hopefully provide all the required imagery in the near future. It could also occur that a pilot is using made up airline
+                            codes, incorrect formatted codes, or flying an aircraft type that the airline does not have in real life.</p>
                         </div>
                     </div>
                     <div class="card">

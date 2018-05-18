@@ -51,7 +51,7 @@
         mounted() {
             console.log('Map mounted.');
 
-            this.map = L.map('radar-map', {zoomControl: false}).setView([51.505, -0.09], 13);
+            this.map = L.map('radar-map', {zoomControl: false}).setView([51.260197, 4.402771], 6);
             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
                 attribution: 'VatsimRadar 📡 is powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
@@ -181,7 +181,9 @@
                  */
                 let aircraftType = 'UNKNOWN';
                 aircraftType = (pilot.planned_aircraft.indexOf('B738') >= 0 || pilot.planned_aircraft.indexOf('B737') >= 0) >= 0 ? 'B738' : aircraftType;
+                aircraftType = pilot.planned_aircraft.indexOf('B744') >= 0 ? 'B744' : aircraftType;
                 aircraftType = pilot.planned_aircraft.indexOf('A320') >= 0 ? 'A320' : aircraftType;
+                aircraftType = pilot.planned_aircraft.indexOf('A319') >= 0 ? 'A319' : aircraftType;
                 aircraftType = pilot.planned_aircraft.indexOf('DH8D') >= 0 ? 'DH8D' : aircraftType;
                 let airline = pilot.callsign.substr(0, 3);
                 /*
@@ -213,7 +215,6 @@
                 console.log('CUR: ' + currentSeconds);
                 console.log('ARR: ' + arrivalSeconds);
                 console.log('%: ' + percentage_covered);
-                // TODO calculate difference in percentages WITH current time
 
                 let promises = [];
                 promises.push(axios.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
