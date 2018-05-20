@@ -48787,17 +48787,44 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
             showATC: true,
-            searchQuery: ''
+            searchQuery: '',
+            showNotification: false
         };
     },
 
     mounted: function mounted() {
         console.log('Navbar mounted.');
+        $('#onloadModal').modal('show');
     },
 
 
@@ -48823,139 +48850,143 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "nav",
-    {
-      staticClass: "navbar navbar-expand-lg navbar-dark bg-dark",
-      staticStyle: { "z-index": "1337" }
-    },
-    [
-      _vm._m(0),
-      _vm._v(" "),
-      _vm._m(1),
-      _vm._v(" "),
-      _vm._m(2),
-      _vm._v(" "),
-      _c("div", { staticClass: "mx-auto order-0" }, [
-        _c("div", [
-          _c("div", { staticClass: "input-group mb-2" }, [
-            _vm._m(3),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.searchQuery,
-                  expression: "searchQuery"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: {
-                onchange: _vm.submitSearch,
-                type: "text",
-                placeholder: "Search by callsign"
-              },
-              domProps: { value: _vm.searchQuery },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
+  return _c("div", [
+    _c(
+      "nav",
+      {
+        staticClass: "navbar navbar-expand-lg navbar-dark bg-dark",
+        staticStyle: { "z-index": "1337" }
+      },
+      [
+        _vm._m(0),
+        _vm._v(" "),
+        _vm._m(1),
+        _vm._v(" "),
+        _vm._m(2),
+        _vm._v(" "),
+        _c("div", { staticClass: "mx-auto order-0" }, [
+          _c("div", [
+            _c("div", { staticClass: "input-group mb-2" }, [
+              _vm._m(3),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.searchQuery,
+                    expression: "searchQuery"
                   }
-                  _vm.searchQuery = $event.target.value
-                }
-              }
-            })
-          ])
-        ])
-      ]),
-      _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "navbar-collapse collapse order-3 dual-collapse2" },
-        [
-          _c("ul", { staticClass: "navbar-nav ml-auto" }, [
-            _c("li", { staticClass: "nav-item" }, [
-              _c("a", { staticClass: "nav-link" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.showATC,
-                      expression: "showATC"
+                ],
+                staticClass: "form-control",
+                attrs: {
+                  onchange: _vm.submitSearch,
+                  type: "text",
+                  placeholder: "Search by callsign"
+                },
+                domProps: { value: _vm.searchQuery },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
                     }
-                  ],
-                  staticClass: "form-check-input",
-                  attrs: {
-                    type: "checkbox",
-                    id: "showATC",
-                    onchange: _vm.changeShowATC
-                  },
-                  domProps: {
-                    checked: Array.isArray(_vm.showATC)
-                      ? _vm._i(_vm.showATC, null) > -1
-                      : _vm.showATC
-                  },
-                  on: {
-                    change: function($event) {
-                      var $$a = _vm.showATC,
-                        $$el = $event.target,
-                        $$c = $$el.checked ? true : false
-                      if (Array.isArray($$a)) {
-                        var $$v = null,
-                          $$i = _vm._i($$a, $$v)
-                        if ($$el.checked) {
-                          $$i < 0 && (_vm.showATC = $$a.concat([$$v]))
+                    _vm.searchQuery = $event.target.value
+                  }
+                }
+              })
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "navbar-collapse collapse order-3 dual-collapse2" },
+          [
+            _c("ul", { staticClass: "navbar-nav ml-auto" }, [
+              _c("li", { staticClass: "nav-item" }, [
+                _c("a", { staticClass: "nav-link" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.showATC,
+                        expression: "showATC"
+                      }
+                    ],
+                    staticClass: "form-check-input",
+                    attrs: {
+                      type: "checkbox",
+                      id: "showATC",
+                      onchange: _vm.changeShowATC
+                    },
+                    domProps: {
+                      checked: Array.isArray(_vm.showATC)
+                        ? _vm._i(_vm.showATC, null) > -1
+                        : _vm.showATC
+                    },
+                    on: {
+                      change: function($event) {
+                        var $$a = _vm.showATC,
+                          $$el = $event.target,
+                          $$c = $$el.checked ? true : false
+                        if (Array.isArray($$a)) {
+                          var $$v = null,
+                            $$i = _vm._i($$a, $$v)
+                          if ($$el.checked) {
+                            $$i < 0 && (_vm.showATC = $$a.concat([$$v]))
+                          } else {
+                            $$i > -1 &&
+                              (_vm.showATC = $$a
+                                .slice(0, $$i)
+                                .concat($$a.slice($$i + 1)))
+                          }
                         } else {
-                          $$i > -1 &&
-                            (_vm.showATC = $$a
-                              .slice(0, $$i)
-                              .concat($$a.slice($$i + 1)))
+                          _vm.showATC = $$c
                         }
-                      } else {
-                        _vm.showATC = $$c
                       }
                     }
-                  }
-                }),
-                _vm._v(" "),
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "label",
+                    {
+                      staticClass: "form-check-label",
+                      attrs: { for: "showATC" }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            Show ATC\n                        "
+                      )
+                    ]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _vm._m(4),
+              _vm._v(" "),
+              _c("li", { staticClass: "nav-item" }, [
                 _c(
-                  "label",
+                  "a",
                   {
-                    staticClass: "form-check-label",
-                    attrs: { for: "showATC" }
+                    staticClass: "nav-link",
+                    attrs: { id: "engine-replace-client_count" }
                   },
                   [
-                    _vm._v(
-                      "\n                        Show ATC\n                    "
-                    )
+                    _vm._v("Serving "),
+                    _c("strong", [_vm._v(_vm._s(_vm.totalClients))]),
+                    _vm._v(" clients")
                   ]
                 )
               ])
-            ]),
-            _vm._v(" "),
-            _vm._m(4),
-            _vm._v(" "),
-            _c("li", { staticClass: "nav-item" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "nav-link",
-                  attrs: { id: "engine-replace-client_count" }
-                },
-                [
-                  _vm._v("Serving "),
-                  _c("strong", [_vm._v(_vm._s(_vm.totalClients))]),
-                  _vm._v(" clients")
-                ]
-              )
             ])
-          ])
-        ]
-      )
-    ]
-  )
+          ]
+        )
+      ]
+    ),
+    _vm._v(" "),
+    _vm._m(5)
+  ])
 }
 var staticRenderFns = [
   function() {
@@ -49030,6 +49061,88 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("li", [_c("a", { staticClass: "nav-link" }, [_vm._v("|")])])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
+          id: "onloadModal",
+          tabindex: "-1",
+          role: "dialog",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c(
+          "div",
+          {
+            staticClass: "modal-dialog modal-dialog-centered",
+            attrs: { role: "document" }
+          },
+          [
+            _c("div", { staticClass: "modal-content" }, [
+              _c("div", { staticClass: "modal-header" }, [
+                _c("h5", { staticClass: "modal-title" }, [
+                  _vm._v("Go around!")
+                ]),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "close",
+                    attrs: {
+                      type: "button",
+                      "data-dismiss": "modal",
+                      "aria-label": "Close"
+                    }
+                  },
+                  [
+                    _c("span", { attrs: { "aria-hidden": "true" } }, [
+                      _vm._v("×")
+                    ])
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-body" }, [
+                _c("i", {
+                  staticClass: "fas fa-exclamation-triangle",
+                  staticStyle: { color: "orange" }
+                }),
+                _vm._v(" "),
+                _c("strong", [_vm._v("[05/20/2018 @ 11:48pm (UTC)]")]),
+                _vm._v(" "),
+                _c("i", {
+                  staticClass: "fas fa-exclamation-triangle",
+                  staticStyle: { color: "orange" }
+                }),
+                _c("br"),
+                _vm._v(
+                  "\n                    We are aware of some users experiencing degraded performance and are working on a fix."
+                ),
+                _c("br")
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-footer" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-warning",
+                    attrs: { type: "button", "data-dismiss": "modal" }
+                  },
+                  [_vm._v("Copy!")]
+                )
+              ])
+            ])
+          ]
+        )
+      ]
+    )
   }
 ]
 render._withStripped = true
