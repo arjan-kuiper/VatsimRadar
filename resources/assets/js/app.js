@@ -38,7 +38,8 @@ const store = new Vuex.Store({
             'departure_estimated': '--:--',
             'departure_actual': '--:--',
             'arrival_estimated': '--:--',
-            'arrival_actual': '--:--'
+            'arrival_actual': '--:--',
+            'flightplan': 'No flightplan found'
         }
     },
     mutations: {

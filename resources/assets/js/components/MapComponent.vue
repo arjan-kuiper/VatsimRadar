@@ -76,6 +76,7 @@
 
                     // Update our global client counter
                     this.$store.state.totalClients = this.clients.length;
+                    console.log('TOTAL CIENTS: ' + this.clients.length);
 
                     this.loadClients();
                     this.loaded = true;
@@ -232,6 +233,7 @@
                     self.$store.state.flightInformation['departure_estimated'] = plannedDeptime === '--:--' ? plannedDeptime : (plannedDeptime[0] + ':' + plannedDeptime[1]);
                     self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : (plannedActualDeptime[0] + ':' + plannedActualDeptime[1]);
                     self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : (plannedArrival[0] + ':' + plannedArrival[1]);
+                    self.$store.state.flightInformation['flightplan'] = pilot.planned_route;
                     self.$store.state.showSidebar = true;
                 }).catch(function(error){
                     $('#noFlightData').modal('show');

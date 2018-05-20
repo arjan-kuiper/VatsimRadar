@@ -69,3 +69,13 @@
 .schedule th{
     font-weight: normal;
 }
+
+.mobileflightinfo{
+    max-width: 100% !important;
+    position: absolute !important;
+    overflow-y: scroll !important;
+}
+
+.mobileflightinfo img{
+    width: 100% !important;
+}
