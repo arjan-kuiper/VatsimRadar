@@ -37,4 +37,5 @@
         }, 1000);
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
+
 @stop

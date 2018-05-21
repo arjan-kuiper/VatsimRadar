@@ -59,12 +59,33 @@
                 </div>
                 <div class="row">
                     <div class="col-md">
+                        Flight Information
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span class="airport-small">Aircraft:&nbsp;</span><br>
+                        <span class="airport-small">Groundspeed:&nbsp;</span><br>
+                        <span class="airport-small">Heading:&nbsp;</span><br>
+                        <span class="airport-small">Altitude:&nbsp;</span><br>
+                        <span class="airport-small">Pilot:&nbsp;</span>
+                    </div>
+                    <div class="col-md-8">
+                        <span class="airport-small">{{ flightInformation['aircraft_type'] }}</span><br>
+                        <span class="airport-small">{{ flightInformation['aircraft_speed'] }}kts</span><br>
+                        <span class="airport-small">{{ flightInformation['aircraft_heading'] }}°</span><br>
+                        <span class="airport-small">{{ flightInformation['aircraft_altitude'] }}ft</span><br>
+                        <span class="airport-small">{{ flightInformation['aircraft_pilot'] }}</span>
+                    </div>
+                </div>
+                <div class="row row-spacer">
+                    <div class="col-md">
                         Flightplan
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md">
-                        <span class="airport-small"><code style="color: #9a9da0;">{{ flightInformation['flightplan'] }}</code></span>
+                        <span class="airport-small"><code id="flightplan" style="color: #9a9da0;">{{ flightInformation['flightplan'] }}</code></span>
                     </div>
                 </div>
             </div>
@@ -76,7 +97,7 @@
     export default {
         data: function(){
             return {
-
+                copied: false
             }
         },
 

@@ -14033,7 +14033,12 @@ var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
             'departure_actual': '--:--',
             'arrival_estimated': '--:--',
             'arrival_actual': '--:--',
-            'flightplan': 'No flightplan found'
+            'flightplan': 'No flightplan found',
+            'aircraft_type': 'Unknown',
+            'aircraft_pilot': 'Unknown',
+            'aircraft_speed': 0,
+            'aircraft_heading': 0,
+            'aircraft_altitude': 0
         }
     },
     mutations: {
@@ -48348,7 +48353,8 @@ Array.prototype.diff = function (a) {
             clients: [],
             markers: [],
             loaded: false,
-            lastSearchQuery: ''
+            lastSearchQuery: '',
+            selectedPlane: undefined
         };
     },
 
@@ -48365,6 +48371,7 @@ Array.prototype.diff = function (a) {
 
         var self = this;
         this.map.on('click', function () {
+            self.clearCurrentSelected();
             self.$store.state.showSidebar = false;
         });
 
@@ -48428,6 +48435,15 @@ Array.prototype.diff = function (a) {
                     // Data for the sidebar and show it
                     var self = this;
                     marker.on('click', function () {
+                        self.clearCurrentSelected();
+                        var icon = L.icon({
+                            iconUrl: 'css/images/plane_selected.svg',
+                            iconSize: [22, 22], // size of the icon
+                            iconAnchor: [11, 22] // point of the icon which will correspond to marker's location
+                        });
+                        marker.setIcon(icon);
+                        self.selectedPlane = marker;
+
                         console.log(client.callsign + ' - ' + client.planned_aircraft);
                         self.showFlightInfo(client);
                     });
@@ -48554,10 +48570,25 @@ Array.prototype.diff = function (a) {
                 self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : plannedActualDeptime[0] + ':' + plannedActualDeptime[1];
                 self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : plannedArrival[0] + ':' + plannedArrival[1];
                 self.$store.state.flightInformation['flightplan'] = pilot.planned_route;
+                self.$store.state.flightInformation['aircraft_type'] = pilot.planned_aircraft;
+                self.$store.state.flightInformation['aircraft_pilot'] = pilot.realname;
+                self.$store.state.flightInformation['aircraft_speed'] = pilot.groundspeed;
+                self.$store.state.flightInformation['aircraft_heading'] = pilot.heading;
+                self.$store.state.flightInformation['aircraft_altitude'] = pilot.altitude.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
                 self.$store.state.showSidebar = true;
             }).catch(function (error) {
                 $('#noFlightData').modal('show');
             });
+        },
+        clearCurrentSelected: function clearCurrentSelected() {
+            if (this.selectedPlane === undefined) return;
+            var icon = L.icon({
+                iconUrl: 'css/images/plane.svg',
+                iconSize: [22, 22], // size of the icon
+                iconAnchor: [11, 22] // point of the icon which will correspond to marker's location
+            });
+            this.selectedPlane.setIcon(icon);
         }
     },
 
@@ -48789,29 +48820,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
@@ -48824,7 +48832,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     mounted: function mounted() {
         console.log('Navbar mounted.');
-        $('#onloadModal').modal('show');
     },
 
 
@@ -48983,9 +48990,7 @@ var render = function() {
           ]
         )
       ]
-    ),
-    _vm._v(" "),
-    _vm._m(5)
+    )
   ])
 }
 var staticRenderFns = [
@@ -49061,88 +49066,6 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("li", [_c("a", { staticClass: "nav-link" }, [_vm._v("|")])])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass: "modal fade",
-        attrs: {
-          id: "onloadModal",
-          tabindex: "-1",
-          role: "dialog",
-          "aria-hidden": "true"
-        }
-      },
-      [
-        _c(
-          "div",
-          {
-            staticClass: "modal-dialog modal-dialog-centered",
-            attrs: { role: "document" }
-          },
-          [
-            _c("div", { staticClass: "modal-content" }, [
-              _c("div", { staticClass: "modal-header" }, [
-                _c("h5", { staticClass: "modal-title" }, [
-                  _vm._v("Go around!")
-                ]),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "close",
-                    attrs: {
-                      type: "button",
-                      "data-dismiss": "modal",
-                      "aria-label": "Close"
-                    }
-                  },
-                  [
-                    _c("span", { attrs: { "aria-hidden": "true" } }, [
-                      _vm._v("×")
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "modal-body" }, [
-                _c("i", {
-                  staticClass: "fas fa-exclamation-triangle",
-                  staticStyle: { color: "orange" }
-                }),
-                _vm._v(" "),
-                _c("strong", [_vm._v("[05/20/2018 @ 11:48pm (UTC)]")]),
-                _vm._v(" "),
-                _c("i", {
-                  staticClass: "fas fa-exclamation-triangle",
-                  staticStyle: { color: "orange" }
-                }),
-                _c("br"),
-                _vm._v(
-                  "\n                    We are aware of some users experiencing degraded performance and are working on a fix."
-                ),
-                _c("br")
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "modal-footer" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-warning",
-                    attrs: { type: "button", "data-dismiss": "modal" }
-                  },
-                  [_vm._v("Copy!")]
-                )
-              ])
-            ])
-          ]
-        )
-      ]
-    )
   }
 ]
 render._withStripped = true
@@ -49281,10 +49204,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
-        return {};
+        return {
+            copied: false
+        };
     },
 
     mounted: function mounted() {
@@ -49478,11 +49424,54 @@ var render = function() {
               _vm._m(2),
               _vm._v(" "),
               _c("div", { staticClass: "row" }, [
+                _vm._m(3),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-8" }, [
+                  _c("span", { staticClass: "airport-small" }, [
+                    _vm._v(_vm._s(_vm.flightInformation["aircraft_type"]))
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "airport-small" }, [
+                    _vm._v(
+                      _vm._s(_vm.flightInformation["aircraft_speed"]) + "kts"
+                    )
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "airport-small" }, [
+                    _vm._v(
+                      _vm._s(_vm.flightInformation["aircraft_heading"]) + "°"
+                    )
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "airport-small" }, [
+                    _vm._v(
+                      _vm._s(_vm.flightInformation["aircraft_altitude"]) + "ft"
+                    )
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "airport-small" }, [
+                    _vm._v(_vm._s(_vm.flightInformation["aircraft_pilot"]))
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _vm._m(4),
+              _vm._v(" "),
+              _c("div", { staticClass: "row" }, [
                 _c("div", { staticClass: "col-md" }, [
                   _c("span", { staticClass: "airport-small" }, [
-                    _c("code", { staticStyle: { color: "#9a9da0" } }, [
-                      _vm._v(_vm._s(_vm.flightInformation["flightplan"]))
-                    ])
+                    _c(
+                      "code",
+                      {
+                        staticStyle: { color: "#9a9da0" },
+                        attrs: { id: "flightplan" }
+                      },
+                      [_vm._v(_vm._s(_vm.flightInformation["flightplan"]))]
+                    )
                   ])
                 ])
               ])
@@ -49529,6 +49518,36 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md" }, [
+        _vm._v("\n                    Flight Information\n                ")
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-md-4" }, [
+      _c("span", { staticClass: "airport-small" }, [_vm._v("Aircraft: ")]),
+      _c("br"),
+      _vm._v(" "),
+      _c("span", { staticClass: "airport-small" }, [_vm._v("Groundspeed: ")]),
+      _c("br"),
+      _vm._v(" "),
+      _c("span", { staticClass: "airport-small" }, [_vm._v("Heading: ")]),
+      _c("br"),
+      _vm._v(" "),
+      _c("span", { staticClass: "airport-small" }, [_vm._v("Altitude: ")]),
+      _c("br"),
+      _vm._v(" "),
+      _c("span", { staticClass: "airport-small" }, [_vm._v("Pilot: ")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row row-spacer" }, [
       _c("div", { staticClass: "col-md" }, [
         _vm._v("\n                    Flightplan\n                ")
       ])

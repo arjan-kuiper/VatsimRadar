@@ -48,29 +48,6 @@
                 </ul>
             </div>
         </nav>
-
-
-        <!-- Onload message -->
-        <div class="modal fade" id="onloadModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Go around!</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <i class="fas fa-exclamation-triangle" style="color: orange"></i> <strong>[05/20/2018 @ 11:48pm (UTC)]</strong>
-                        <i class="fas fa-exclamation-triangle" style="color: orange"></i><br>
-                        We are aware of some users experiencing degraded performance and are working on a fix.<br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" data-dismiss="modal">Copy!</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -86,7 +63,6 @@
 
         mounted(){
             console.log('Navbar mounted.');
-            $('#onloadModal').modal('show');
         },
 
         computed: {

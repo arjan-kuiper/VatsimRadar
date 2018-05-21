@@ -44,7 +44,8 @@
                 clients: [],
                 markers: [],
                 loaded: false,
-                lastSearchQuery: ''
+                lastSearchQuery: '',
+                selectedPlane: undefined
             }
         },
 
@@ -61,6 +62,7 @@
 
             let self = this;
             this.map.on('click', function(){
+                self.clearCurrentSelected();
                 self.$store.state.showSidebar = false;
             });
 
@@ -124,6 +126,15 @@
                         // Data for the sidebar and show it
                         let self = this;
                         marker.on('click', function(){
+                            self.clearCurrentSelected();
+                            let icon = L.icon({
+                                iconUrl: 'css/images/plane_selected.svg',
+                                iconSize:     [22, 22], // size of the icon
+                                iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
+                            });
+                            marker.setIcon(icon);
+                            self.selectedPlane = marker;
+
                             console.log(client.callsign + ' - ' + client.planned_aircraft);
                             self.showFlightInfo(client);
                         });
@@ -234,10 +245,26 @@
                     self.$store.state.flightInformation['departure_actual'] = plannedActualDeptime === '--:--' ? plannedActualDeptime : (plannedActualDeptime[0] + ':' + plannedActualDeptime[1]);
                     self.$store.state.flightInformation['arrival_estimated'] = plannedArrival === '--:--' ? plannedArrival : (plannedArrival[0] + ':' + plannedArrival[1]);
                     self.$store.state.flightInformation['flightplan'] = pilot.planned_route;
+                    self.$store.state.flightInformation['aircraft_type'] = pilot.planned_aircraft;
+                    self.$store.state.flightInformation['aircraft_pilot'] = pilot.realname;
+                    self.$store.state.flightInformation['aircraft_speed'] = pilot.groundspeed;
+                    self.$store.state.flightInformation['aircraft_heading'] = pilot.heading;
+                    self.$store.state.flightInformation['aircraft_altitude'] = pilot.altitude.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
                     self.$store.state.showSidebar = true;
                 }).catch(function(error){
                     $('#noFlightData').modal('show');
                 });
+            },
+
+            clearCurrentSelected(){
+                if(this.selectedPlane === undefined) return;
+                let icon = L.icon({
+                    iconUrl: 'css/images/plane.svg',
+                    iconSize:     [22, 22], // size of the icon
+                    iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
+                });
+                this.selectedPlane.setIcon(icon);
             }
         },
 
