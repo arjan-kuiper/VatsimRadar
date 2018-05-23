@@ -102,17 +102,32 @@
             addMarker: function(client, lat, lon, heading){
                 lat = parseFloat(lat);
                 lon = parseFloat(lon);
+                let icon, selectedId;
 
-                let icon = L.icon({
-                    iconUrl: 'css/images/plane.svg',
-                    iconSize:     [22, 22], // size of the icon
-                    iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
-                });
+                if(this.selectedPlane !== undefined && this.selectedPlane.client_cid === client.cid){
+                    selectedId = client.cid;
+                    icon = L.icon({
+                        iconUrl: 'css/images/plane_selected.svg',
+                        iconSize:     [22, 22], // size of the icon
+                        iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
+                    });
+                }else{
+                    icon = L.icon({
+                        iconUrl: 'css/images/plane.svg',
+                        iconSize:     [22, 22], // size of the icon
+                        iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
+                    });
+                }
 
                 if(!isNaN(lat) && !isNaN(lon)) {
                     if(client.clienttype === 'PILOT'){
                         let marker = L.marker([lat, lon], {icon: icon, rotationAngle: heading}).addTo(this.map);
                         marker.identifier = 'PILOT';
+
+                        if(selectedId !== undefined){
+                            this.selectedPlane = marker;
+                            this.selectedPlane.client_cid = client.cid;
+                        }
 
                         // Info tooltip
                         marker.bindTooltip(
@@ -133,7 +148,9 @@
                                 iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
                             });
                             marker.setIcon(icon);
+                            marker.client_cid = client.cid;
                             self.selectedPlane = marker;
+                            self.selectedPlane.client_cid = client.cid;
 
                             console.log(client.callsign + ' - ' + client.planned_aircraft);
                             self.showFlightInfo(client);
@@ -150,6 +167,7 @@
                         };
                         let type = client.callsign.slice(-3);
                         if(type === 'TIS'){ type = 'ATIS'; }
+                        if(type === 'CTR') return console.log('Skipped CTR: ' + client.callsign);
                         if(type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
 
                         let marker = L.circle([parseFloat(lat),parseFloat(lon)], {
@@ -258,13 +276,21 @@
             },
 
             clearCurrentSelected(){
+                console.log('Clear: ' + this.selectedPlane);
                 if(this.selectedPlane === undefined) return;
-                let icon = L.icon({
-                    iconUrl: 'css/images/plane.svg',
-                    iconSize:     [22, 22], // size of the icon
-                    iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
+                let self = this;
+                this.map.eachLayer(function(layer){
+                    if(layer.client_cid = self.selectedPlane.client_cid){
+                        let icon = L.icon({
+                            iconUrl: 'css/images/plane.svg',
+                            iconSize:     [22, 22], // size of the icon
+                            iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
+                        });
+                        self.selectedPlane.setIcon(icon);
+                    }
                 });
-                this.selectedPlane.setIcon(icon);
+
+                this.selectedPlane = undefined;
             }
         },
 
