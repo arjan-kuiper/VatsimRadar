@@ -49384,7 +49384,7 @@ var render = function() {
                 "div",
                 { staticClass: "row row-spacer", attrs: { align: "center" } },
                 [
-                  _c("div", { staticClass: "col-md" }, [
+                  _c("div", { staticClass: "col-4" }, [
                     _c("span", { staticClass: "airport-title" }, [
                       _vm._v(_vm._s(_vm.flightInformation["departure_airport"]))
                     ]),
@@ -49399,7 +49399,7 @@ var render = function() {
                   _vm._v(" "),
                   _vm._m(0),
                   _vm._v(" "),
-                  _c("div", { staticClass: "col-md" }, [
+                  _c("div", { staticClass: "col-4" }, [
                     _c("span", { staticClass: "airport-title" }, [
                       _vm._v(_vm._s(_vm.flightInformation["arrival_airport"]))
                     ]),
@@ -49482,7 +49482,7 @@ var render = function() {
               _c("div", { staticClass: "row" }, [
                 _vm._m(3),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-md-8" }, [
+                _c("div", { staticClass: "col-8" }, [
                   _c("span", { staticClass: "airport-small" }, [
                     _vm._v(_vm._s(_vm.flightInformation["aircraft_type"]))
                   ]),
@@ -49542,7 +49542,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md" }, [
+    return _c("div", { staticClass: "col-4" }, [
       _c("i", { staticClass: "fas fa-plane fa-2x" })
     ])
   },
@@ -49583,7 +49583,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-4" }, [
+    return _c("div", { staticClass: "col-4" }, [
       _c("span", { staticClass: "airport-small" }, [_vm._v("Aircraft: ")]),
       _c("br"),
       _vm._v(" "),
