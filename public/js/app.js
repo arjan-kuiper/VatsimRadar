@@ -14018,6 +14018,7 @@ var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
     state: {
         totalClients: 0,
         showATC: true,
+        showFIR: true,
         searchQuery: '',
 
         showSidebar: false,
@@ -14044,6 +14045,9 @@ var store = new __WEBPACK_IMPORTED_MODULE_0_vuex__["a" /* default */].Store({
     mutations: {
         setShowATC: function setShowATC(state, payload) {
             state.showATC = payload;
+        },
+        setShowFIR: function setShowFIR(state, payload) {
+            state.showFIR = payload;
         },
         setSearchQuery: function setSearchQuery(state, payload) {
             state.searchQuery = payload;
@@ -48354,7 +48358,8 @@ Array.prototype.diff = function (a) {
             markers: [],
             loaded: false,
             lastSearchQuery: '',
-            selectedPlane: undefined
+            selectedPlane: undefined,
+            updatedATC: true
         };
     },
 
@@ -48411,6 +48416,8 @@ Array.prototype.diff = function (a) {
         },
 
         addMarker: function addMarker(client, lat, lon, heading) {
+            var _this2 = this;
+
             lat = parseFloat(lat);
             lon = parseFloat(lon);
             var icon = void 0,
@@ -48479,16 +48486,36 @@ Array.prototype.diff = function (a) {
                     if (type === 'TIS') {
                         type = 'ATIS';
                     }
-                    if (type === 'CTR') return console.log('Skipped CTR: ' + client.callsign);
-                    if (type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
+                    if (type !== 'CTR' && type !== 'TWR' && type !== 'APP') return;
 
-                    var _marker = L.circle([parseFloat(lat), parseFloat(lon)], {
-                        color: radius[type][1],
-                        fillColor: radius[type][1],
-                        fillOpacity: 0.5,
-                        radius: !isNaN(radius[type][0]) ? radius[type][0] : 0
-                    }).addTo(this.map);
+                    var _marker = void 0;
+                    if (type !== 'CTR') {
+                        console.log('Called TWR');
+                        _marker = L.circle([parseFloat(lat), parseFloat(lon)], {
+                            color: radius[type][1],
+                            opacity: 0.6,
+                            fillColor: radius[type][1],
+                            fillOpacity: 0.3,
+                            radius: !isNaN(radius[type][0]) ? radius[type][0] : 0
+                        }).addTo(this.map);
+                    } else if (type === 'CTR') {
+                        var callsign = client.callsign.substr(0, client.callsign.length - 4);
+                        //console.log('Called CTR');
 
+                        __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/fir/' + callsign).then(function (response) {
+                            var coords = [];
+                            for (var i = 0; i < response.data.length; i++) {
+                                coords.push([parseFloat(response.data[i][0]), parseFloat(response.data[i][1])]);
+                            }
+                            _marker = L.polygon(coords, { color: 'green', opacity: 0.6, fillOpacity: 0.3 }).addTo(_this2.map);
+                            _marker.identifier = 'ATC';
+                            _marker.bindTooltip('<strong>' + client.callsign + '</strong><br>' + 'Frequency: ' + client.frequency + '</br>' + 'Visual Range: ' + client.visualrange + 'nm</br>' + 'Rating: ' + client.rating);
+                        }).catch(function (e) {
+                            console.log(e);
+                        });
+                    }
+
+                    if (_marker === undefined) return;
                     _marker.identifier = 'ATC';
 
                     // Build an info tooltip
@@ -48621,11 +48648,13 @@ Array.prototype.diff = function (a) {
 
     computed: {
         showATC: function showATC() {
+            if (this.$store.state.showATC === this.updatedATC) return;
             this.loadClients();
+            this.updatedATC = this.$store.state.showATC;
             return this.$store.state.showATC;
         },
         searchQuery: function searchQuery() {
-            var _this2 = this;
+            var _this3 = this;
 
             var query = this.$store.state.searchQuery;
             if (query === this.lastSearchQuery) return;
@@ -48633,8 +48662,8 @@ Array.prototype.diff = function (a) {
                 query = query.toUpperCase();
                 this.clients.forEach(function (client) {
                     if (query === client.callsign) {
-                        _this2.map.setView([parseFloat(client.latitude), parseFloat(client.longitude)], 12);
-                        _this2.lastSearchQuery = query;
+                        _this3.map.setView([parseFloat(client.latitude), parseFloat(client.longitude)], 12);
+                        _this3.lastSearchQuery = query;
                     }
                 });
             }

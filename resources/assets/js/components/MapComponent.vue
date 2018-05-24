@@ -45,7 +45,8 @@
                 markers: [],
                 loaded: false,
                 lastSearchQuery: '',
-                selectedPlane: undefined
+                selectedPlane: undefined,
+                updatedATC: true,
             }
         },
 
@@ -167,16 +168,44 @@
                         };
                         let type = client.callsign.slice(-3);
                         if(type === 'TIS'){ type = 'ATIS'; }
-                        if(type === 'CTR') return console.log('Skipped CTR: ' + client.callsign);
-                        if(type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
+                        if(type !== 'CTR' && type !== 'TWR' && type !== 'APP') return;
 
-                        let marker = L.circle([parseFloat(lat),parseFloat(lon)], {
-                            color: radius[type][1],
-                            fillColor: radius[type][1],
-                            fillOpacity: 0.5,
-                            radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
-                        }).addTo(this.map);
+                        let marker;
+                        if(type !== 'CTR'){
+                            console.log('Called TWR');
+                            marker = L.circle([parseFloat(lat),parseFloat(lon)], {
+                                color: radius[type][1],
+                                opacity: 0.6,
+                                fillColor: radius[type][1],
+                                fillOpacity: 0.3,
+                                radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
+                            }).addTo(this.map);
+                        }else if(type === 'CTR'){
+                            let callsign = client.callsign.substr(0, client.callsign.length - 4);
+                            //console.log('Called CTR');
 
+                            axios.get('/api/fir/' + callsign).then(response =>{
+                                let coords = [];
+                                for(let i = 0; i < response.data.length; i++){
+                                    coords.push([
+                                        parseFloat(response.data[i][0]),
+                                        parseFloat(response.data[i][1])
+                                    ]);
+                                }
+                                marker = L.polygon(coords, {color: 'green', opacity: 0.6, fillOpacity: 0.3}).addTo(this.map);
+                                marker.identifier = 'ATC';
+                                marker.bindTooltip(
+                                    '<strong>' + client.callsign + '</strong><br>' +
+                                    'Frequency: ' + client.frequency + '</br>' +
+                                    'Visual Range: ' + client.visualrange + 'nm</br>' +
+                                    'Rating: ' + client.rating
+                                );
+                            }).catch(e => {
+                                console.log(e);
+                            });
+                        }
+
+                        if(marker === undefined) return;
                         marker.identifier = 'ATC';
 
                         // Build an info tooltip
@@ -296,7 +325,9 @@
 
         computed: {
             showATC(){
+                if(this.$store.state.showATC === this.updatedATC) return;
                 this.loadClients();
+                this.updatedATC = this.$store.state.showATC;
                 return this.$store.state.showATC;
             },
 

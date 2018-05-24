@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 class AirportController extends Controller
 {
     public function getAirport($airport, $datatype = null){
-        $handle = fopen("airports.dat", "r") or die("Couldn't get handle");
+        $handle = fopen("../airports.dat", "r") or die("Couldn't get handle");
         if ($handle) {
             while (!feof($handle)) {
                 $buffer = fgets($handle, 4096);

@@ -9,7 +9,7 @@ class AircraftController extends Controller
     public function getAircraftImage($iata, $model){
         $baseURL = "/api/aircraft?url=https://www.aviationimagenetwork.com/Passenger-Airlines/Passenger-Airlines-";
 
-        $handle = fopen("airlines.dat", "r") or die("Couldn't get handle");
+        $handle = fopen("../airlines.dat", "r") or die("Couldn't get handle");
         if ($handle) {
             while (!feof($handle)) {
                 $buffer = fgets($handle, 4096);

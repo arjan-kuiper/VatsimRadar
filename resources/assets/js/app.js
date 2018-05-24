@@ -24,6 +24,7 @@ const store = new Vuex.Store({
     state: {
         totalClients: 0,
         showATC: true,
+        showFIR: true,
         searchQuery: '',
 
         showSidebar: false,
@@ -50,6 +51,9 @@ const store = new Vuex.Store({
     mutations: {
         setShowATC(state, payload){
             state.showATC = payload;
+        },
+        setShowFIR(state, payload){
+            state.showFIR = payload;
         },
         setSearchQuery(state, payload){
             state.searchQuery = payload;

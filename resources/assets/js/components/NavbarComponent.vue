@@ -73,6 +73,7 @@
             changeShowATC(){
                 return this.$store.commit('setShowATC', this.showATC);
             },
+
             submitSearch(){
                 this.searchQuery = this.searchQuery.toUpperCase();
                 return this.$store.commit('setSearchQuery', this.searchQuery);
