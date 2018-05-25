@@ -1,3 +1,4 @@
 1) home.blade.php -> uncomment console.log = function(){}
 2) webpack.config.js -> mode op production
 3) op de server -> npm run production
+3) Zet de requestClientData interval op 60 seconden ipv 10

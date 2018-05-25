@@ -43,6 +43,7 @@ const store = new Vuex.Store({
             'flightplan': 'No flightplan found',
             'aircraft_type': 'Unknown',
             'aircraft_pilot': 'Unknown',
+            'aircraft_cid': 'Unknown',
             'aircraft_speed': 0,
             'aircraft_heading': 0,
             'aircraft_altitude': 0

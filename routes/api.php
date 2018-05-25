@@ -19,6 +19,6 @@ Route::get('/airport/{airport}/{datatype?}', 'AirportController@getAirport');
 Route::get('/aircraft/{iata}/{model}', 'AircraftController@getAircraftImage');
 Route::get('/aircraft', ['uses' => 'AircraftController@processURL']);
 Route::get('/fir/{icao}', 'FIRController@getFIRBoundaries');
-
+Route::get('/aircraftimg/{aircrafttype}/{airline}', 'AircraftImageController@getAircraftImage');
 
 

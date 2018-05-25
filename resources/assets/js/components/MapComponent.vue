@@ -9,7 +9,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Oh no!</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button v-on:click.stop="clearCurrentSelected" type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -200,6 +200,7 @@
                                     'Visual Range: ' + client.visualrange + 'nm</br>' +
                                     'Rating: ' + client.rating
                                 );
+                                return marker;
                             }).catch(e => {
                                 console.log(e);
                             });
@@ -278,10 +279,11 @@
                 let promises = [];
                 promises.push(axios.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
                 promises.push(axios.get('/api/airport/' + pilot.planned_destairport + '/IATA'));
+                promises.push(axios.get('/api/aircraftimg/' + aircraftType + '/' + airline));
 
                 let self = this;
                 axios.all(promises).then(function(result){
-                    self.$store.state.flightInformation['image'] = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
+                    self.$store.state.flightInformation['image'] = (result[2].data === 404) ? '/img/no-aircraft.png' : result[2].data;
                     self.$store.state.flightInformation['flightnr'] = pilot.callsign;
                     self.$store.state.flightInformation['departure_airport'] = pilot.planned_depairport;
                     self.$store.state.flightInformation['departure_airport_iata'] = (result[0].data === 404) ? 'N/A' : result[0].data;
@@ -294,6 +296,7 @@
                     self.$store.state.flightInformation['flightplan'] = pilot.planned_route;
                     self.$store.state.flightInformation['aircraft_type'] = pilot.planned_aircraft;
                     self.$store.state.flightInformation['aircraft_pilot'] = pilot.realname;
+                    self.$store.state.flightInformation['aircraft_cid'] = pilot.cid;
                     self.$store.state.flightInformation['aircraft_speed'] = pilot.groundspeed;
                     self.$store.state.flightInformation['aircraft_heading'] = pilot.heading;
                     self.$store.state.flightInformation['aircraft_altitude'] = pilot.altitude.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');

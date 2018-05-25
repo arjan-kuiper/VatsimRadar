@@ -68,14 +68,16 @@
                         <span class="airport-small">Groundspeed:&nbsp;</span><br>
                         <span class="airport-small">Heading:&nbsp;</span><br>
                         <span class="airport-small">Altitude:&nbsp;</span><br>
-                        <span class="airport-small">Pilot:&nbsp;</span>
+                        <span class="airport-small">Pilot:&nbsp;</span><br>
+                        <span class="airport-small">CID:&nbsp;</span>
                     </div>
                     <div class="col-8">
                         <span class="airport-small">{{ flightInformation['aircraft_type'] }}</span><br>
                         <span class="airport-small">{{ flightInformation['aircraft_speed'] }}kts</span><br>
                         <span class="airport-small">{{ flightInformation['aircraft_heading'] }}°</span><br>
                         <span class="airport-small">{{ flightInformation['aircraft_altitude'] }}ft</span><br>
-                        <span class="airport-small">{{ flightInformation['aircraft_pilot'] }}</span>
+                        <span class="airport-small">{{ flightInformation['aircraft_pilot'] }}</span><br>
+                        <span class="airport-small">{{ flightInformation['aircraft_cid'] }}</span>
                     </div>
                 </div>
                 <div class="row row-spacer">
