@@ -58,7 +58,8 @@
                 attribution: 'VatsimRadar 📡 is powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
                 id: 'mapbox.dark',
-                accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw'
+                accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw',
+                //noWrap: true, - Disabled, because it causes errors with Mapbox tiles
             }).addTo(this.map);
 
             let self = this;

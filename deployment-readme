@@ -1,4 +1,5 @@
-1) home.blade.php -> uncomment console.log = function(){}
-2) webpack.config.js -> mode op production
-3) op de server -> npm run production
-3) Zet de requestClientData interval op 60 seconden ipv 10
+1) Ze DEV op BETA in NavbarComponent.vue
+2) home.blade.php -> uncomment console.log = function(){}
+3) webpack.config.js -> mode op production
+4) op de server -> npm run production
+5) Zet de requestClientData interval op 60 seconden ipv 10
