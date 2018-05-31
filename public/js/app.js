@@ -48473,6 +48473,7 @@ Array.prototype.diff = function (a) {
 
                         console.log(client.callsign + ' - ' + client.planned_aircraft);
                         self.showFlightInfo(client);
+                        self.showFlightPath(client);
                     });
 
                     client.marker = marker;
@@ -48632,6 +48633,50 @@ Array.prototype.diff = function (a) {
                 $('#noFlightData').modal('show');
             });
         },
+        showFlightPath: function showFlightPath(pilot) {
+            var _this3 = this;
+
+            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/positions/' + pilot.cid).then(function (response) {
+                console.log(response.data);
+                response.data.forEach(function (pos, index) {
+                    if (response.data.length - 1 === index) return;
+                    var myPolyline = L.polyline([[parseFloat(pos.latitude), parseFloat(pos.longitude)], [parseFloat(response.data[index + 1].latitude), parseFloat(response.data[index + 1].longitude)]]).addTo(_this3.map);
+                    if (pos.altitude >= 0 && pos.altitude < 2000) {
+                        myPolyline.setStyle({
+                            color: 'rgb(255,0,0)'
+                        });
+                    }
+                    if (pos.altitude >= 2000 && pos.altitude < 5000) {
+                        myPolyline.setStyle({
+                            color: 'rgb(200,0,0)'
+                        });
+                    }
+                    if (pos.altitude >= 5000 && pos.altitude < 10000) {
+                        myPolyline.setStyle({
+                            color: 'rgb(100,0,0)'
+                        });
+                    }
+                    if (pos.altitude >= 10000 && pos.altitude < 20000) {
+                        myPolyline.setStyle({
+                            color: 'rgb(0,150,0)'
+                        });
+                    }
+                    if (pos.altitude >= 20000 && pos.altitude < 30000) {
+                        myPolyline.setStyle({
+                            color: 'rgb(0,255,0)'
+                        });
+                    }
+                    if (pos.altitude >= 30000 && pos.altitude < 50000) {
+                        myPolyline.setStyle({
+                            color: 'rgb(0,0,255)'
+                        });
+                    }
+                });
+            }).catch(function (e) {
+                console.log(e);
+            });
+            // TODO
+        },
         clearCurrentSelected: function clearCurrentSelected() {
             console.log('Clear: ' + this.selectedPlane);
             if (this.selectedPlane === undefined) return;
@@ -48659,7 +48704,7 @@ Array.prototype.diff = function (a) {
             return this.$store.state.showATC;
         },
         searchQuery: function searchQuery() {
-            var _this3 = this;
+            var _this4 = this;
 
             var query = this.$store.state.searchQuery;
             if (query === this.lastSearchQuery) return;
@@ -48667,8 +48712,8 @@ Array.prototype.diff = function (a) {
                 query = query.toUpperCase();
                 this.clients.forEach(function (client) {
                     if (query === client.callsign) {
-                        _this3.map.setView([parseFloat(client.latitude), parseFloat(client.longitude)], 12);
-                        _this3.lastSearchQuery = query;
+                        _this4.map.setView([parseFloat(client.latitude), parseFloat(client.longitude)], 12);
+                        _this4.lastSearchQuery = query;
                     }
                 });
             }

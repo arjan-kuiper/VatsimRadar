@@ -156,6 +156,7 @@
 
                             console.log(client.callsign + ' - ' + client.planned_aircraft);
                             self.showFlightInfo(client);
+                            self.showFlightPath(client);
                         });
 
                         client.marker = marker;
@@ -306,6 +307,53 @@
                 }).catch(function(error){
                     $('#noFlightData').modal('show');
                 });
+            },
+
+            showFlightPath(pilot){axios.get('/api/positions/' + pilot.cid).then(response =>{
+                    console.log(response.data);
+                    response.data.forEach((pos, index) => {
+                        if(response.data.length - 1 === index) return;
+                        let myPolyline = L.polyline(
+                            [
+                                [parseFloat(pos.latitude), parseFloat(pos.longitude)],
+                                [parseFloat(response.data[index + 1].latitude), parseFloat(response.data[index + 1].longitude)]
+                            ]
+                        ).addTo(this.map);
+                        if(pos.altitude >= 0 && pos.altitude < 2000){
+                            myPolyline.setStyle({
+                                color: 'rgb(255,0,0)'
+                            });
+                        }
+                        if(pos.altitude >= 2000 && pos.altitude < 5000){
+                            myPolyline.setStyle({
+                                color: 'rgb(200,0,0)'
+                            });
+                        }
+                        if(pos.altitude >= 5000 && pos.altitude < 10000){
+                            myPolyline.setStyle({
+                                color: 'rgb(100,0,0)'
+                            });
+                        }
+                        if(pos.altitude >= 10000 && pos.altitude < 20000){
+                            myPolyline.setStyle({
+                                color: 'rgb(0,150,0)'
+                            });
+                        }
+                        if(pos.altitude >= 20000 && pos.altitude < 30000){
+                            myPolyline.setStyle({
+                                color: 'rgb(0,255,0)'
+                            });
+                        }
+                        if(pos.altitude >= 30000 && pos.altitude < 50000){
+                            myPolyline.setStyle({
+                                color: 'rgb(0,0,255)'
+                            });
+                        }
+                    })
+                }).catch(e => {
+                    console.log(e);
+                });
+              // TODO
             },
 
             clearCurrentSelected(){

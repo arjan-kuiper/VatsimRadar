@@ -37,6 +37,7 @@ class PositionalUpdate extends Command
      */
     public function handle()
     {
+        app('App\Http\Controllers\MapRenderController')->getServers(true);
         $this->info("[SUCCES] PositionalUpdate");
     }
 }

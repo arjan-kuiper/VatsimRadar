@@ -16,7 +16,7 @@ class MapRenderController extends Controller
 
     }
 
-    public function getServers(){
+    public function getServers($forDB = false){
         Cache::remember('vatsimServers', 1, function(){
             $this->content = str_replace("\r\n", "\n", file_get_contents($this->statusURL));
             preg_match_all("/url0=(.*)/", $this->content, $this->servers);
@@ -28,6 +28,12 @@ class MapRenderController extends Controller
         }
 
         $this->allData = Cache::get('vatsimData');
+
+        // Put data into the DB if needed
+        if($forDB){
+            app('App\Http\Controllers\PositionController')->store($this->allData);
+        }
+
         return response()->json($this->allData);
     }
 
