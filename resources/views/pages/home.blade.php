@@ -20,6 +20,7 @@
 
     <script src='{{ asset('js/leaflet.js') }}'></script>
     <script src='{{ asset('js/leaflet-rotation.js') }}'></script>
+    <script src='{{ asset('js/leaflet.hotline.js') }}'></script>
 
     <script type="text/javascript" src="{{ asset('js/please-wait.js') }}"></script>
     <script type="text/javascript">
