@@ -55,7 +55,6 @@ class PositionController extends Controller
                 "speed" => intval($entry["groundspeed"]),
                 "heading" => intval($entry["heading"])
             );
-
         }
 
         Position::insert($toInsert);

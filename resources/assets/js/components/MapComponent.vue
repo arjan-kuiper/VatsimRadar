@@ -46,6 +46,7 @@
                 loaded: false,
                 lastSearchQuery: '',
                 selectedPlane: undefined,
+                selectedFlightpath: undefined,
                 updatedATC: true,
             }
         },
@@ -65,6 +66,7 @@
             let self = this;
             this.map.on('click', function(){
                 self.clearCurrentSelected();
+                if(self.selectedFlightpath !== undefined) self.map.removeLayer(self.selectedFlightpath);
                 self.$store.state.showSidebar = false;
             });
 
@@ -113,6 +115,10 @@
                         iconSize:     [22, 22], // size of the icon
                         iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
                     });
+
+                    // Also refresh the flightpath
+                    if(this.selectedFlightpath !== undefined) this.map.removeLayer(this.selectedFlightpath);
+                    this.showFlightPath(client);
                 }else{
                     icon = L.icon({
                         iconUrl: 'css/images/plane.svg',
@@ -144,6 +150,7 @@
                         let self = this;
                         marker.on('click', function(){
                             self.clearCurrentSelected();
+                            if(self.selectedFlightpath !== undefined) self.map.removeLayer(self.selectedFlightpath); // Remove flightpath of previous selected flight
                             let icon = L.icon({
                                 iconUrl: 'css/images/plane_selected.svg',
                                 iconSize:     [22, 22], // size of the icon
@@ -309,20 +316,21 @@
                 });
             },
 
-            showFlightPath(pilot){axios.get('/api/positions/' + pilot.cid).then(response =>{
+            showFlightPath(pilot){
+                let self = this;
+                axios.get('/api/positions/' + pilot.cid).then(response =>{
                     console.log(response.data);
                     let flightPathCoords = [];
 
                     response.data.forEach((pos, index) => {
-                        if(response.data.length - 1 === index) return;
                         flightPathCoords.push([
                             parseFloat(pos.latitude),
                             parseFloat(pos.longitude),
-                            parseInt(pos.altitude) / 100000 * 3
+                            parseFloat(pos.altitude) / 100000 * 3
                         ]);
                     });
 
-                    let flightPath = L.hotline(flightPathCoords, {
+                    self.selectedFlightpath = L.hotline(flightPathCoords, {
                         min: 0,
                         palette: {
                             0.06: 'rgb(0,255,0)',

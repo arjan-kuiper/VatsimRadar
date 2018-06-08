@@ -25,14 +25,10 @@ class MapRenderController extends Controller
 
         if(!Cache::has('vatsimData')){
             $this->parseAll();
+            app('App\Http\Controllers\PositionController')->store(Cache::get('vatsimData'));
         }
 
         $this->allData = Cache::get('vatsimData');
-
-        // Put data into the DB if needed
-        if($forDB){
-            app('App\Http\Controllers\PositionController')->store($this->allData);
-        }
 
         return response()->json($this->allData);
     }
