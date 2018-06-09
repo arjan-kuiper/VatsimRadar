@@ -31,7 +31,7 @@ class PositionController extends Controller
             ){ continue; }
 
             $toInsert[] = array(
-                "client_id" => $entry["cid"],
+                "client_id" => intval($entry["cid"]),
                 "client_name" => $entry["realname"],
                 "latitude" => floatval($entry["latitude"]),
                 "longitude" => floatval($entry["longitude"]),
@@ -48,7 +48,7 @@ class PositionController extends Controller
 
     public function show($cid)
     {
-        $results = Position::all()->where('client_id', '=', $cid)->toArray();
+        $results = Position::where('client_id', '=', $cid)->get();
         $positions = array();
 
         // Gotta get rid of the overlapping row ids

@@ -15,7 +15,7 @@ class CreatePositionsTable extends Migration
     {
         Schema::create('positions', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('client_id');
+            $table->integer('client_id')->index();
             $table->string('client_name', 100);
             $table->float('latitude');
             $table->float('longitude');
