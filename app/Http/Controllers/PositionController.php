@@ -17,22 +17,6 @@ class PositionController extends Controller
 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store($data)
     {
         $toInsert = array();
@@ -53,19 +37,15 @@ class PositionController extends Controller
                 "longitude" => floatval($entry["longitude"]),
                 "altitude" => intval($entry["altitude"]),
                 "speed" => intval($entry["groundspeed"]),
-                "heading" => intval($entry["heading"])
+                "heading" => intval($entry["heading"]),
+                "created_at" => \Carbon\Carbon::now(),
+                "updated_at" => \Carbon\Carbon::now()
             );
         }
 
         Position::insert($toInsert);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($cid)
     {
         $results = Position::all()->where('client_id', '=', $cid)->toArray();
@@ -79,37 +59,7 @@ class PositionController extends Controller
         return json_encode($positions);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+    public function clear(){
+        Position::truncate();
     }
 }

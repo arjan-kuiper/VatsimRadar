@@ -10,7 +10,9 @@
     transition: all 0.3s;
     position: fixed;
     height: 100%;
-    max-width: 300px
+    max-width: 300px;
+    overflow-y: auto;
+    padding-bottom: 55px;
 }
 
 #sidebar .sidebar-header {
