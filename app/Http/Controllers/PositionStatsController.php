@@ -11,7 +11,7 @@ class PositionStatsController extends Controller
         $stats = PositionStats::find(1);
         $stats->cycles = $stats->cycles + 1;
 
-        if($stats->cycles >= 500){
+        if($stats->cycles >= 250){
             app('App\Http\Controllers\PositionController')->clear();
             $stats->cycles = 0;
         }

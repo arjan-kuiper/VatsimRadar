@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Position;
 
 class PositionController extends Controller
@@ -20,6 +21,8 @@ class PositionController extends Controller
     public function store($data)
     {
         $toInsert = array();
+        $perClient = array();
+
         foreach($data as $entry){
             if(
                 strpos($entry["callsign"], 'GND') !== false ||
@@ -59,7 +62,13 @@ class PositionController extends Controller
         return json_encode($positions);
     }
 
-    public function clear(){
+    public function removeByClientId($cid)
+    {
+        Position::where('client_id', '=', $cid)->delete();
+    }
+
+    public function clear()
+    {
         Position::truncate();
     }
 }

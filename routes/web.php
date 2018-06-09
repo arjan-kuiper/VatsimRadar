@@ -15,6 +15,9 @@ Route::get('/', 'HomeController@index');
 Route::get('/faq', function(){
    return view('pages/faq');
 });
+Route::get('/changelog', function(){
+    return view('pages/changelog');
+});
 /*route::get('/features', function(){
    return view('pages/features');
 });*/

@@ -10,11 +10,11 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Live Map</a>
                     </li>
-                    <!--<li class="nav-item">
-                        <a class="nav-link" href="/features">Features</a>
-                    </li>-->
                     <li class="nav-item">
                         <a class="nav-link" href="/faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/changelog">Changelog</a>
                     </li>
                 </ul>
             </div>

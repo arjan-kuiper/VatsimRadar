@@ -13,11 +13,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/">Live Map</a>
                     </li>
-                    {{--<li class="nav-item">
-                        <a class="nav-link active" href="#">Features</a>
-                    </li>--}}
                     <li class="nav-item">
                         <a class="nav-link" href="/faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Changelog</a>
                     </li>
                 </ul>
             </div>
