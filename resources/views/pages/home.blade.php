@@ -7,9 +7,9 @@
     <link href="{{ asset('css/leaflet.css') }}" rel="stylesheet" type="text/css">
 
     <!-- FOR PRODUCTION -->
-    {{--<script>
+    <script>
         console.log = function(){}
-    </script>--}}
+    </script>
 
     <div id="app" class="wrapper">
         <sidebar-component></sidebar-component>
@@ -20,6 +20,7 @@
 
     <script src='{{ asset('js/leaflet.js') }}'></script>
     <script src='{{ asset('js/leaflet-rotation.js') }}'></script>
+    <script src='{{ asset('js/leaflet.hotline.js') }}'></script>
 
     <script type="text/javascript" src="{{ asset('js/please-wait.js') }}"></script>
     <script type="text/javascript">

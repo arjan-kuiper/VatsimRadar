@@ -10,7 +10,7 @@ class AiracController extends Controller
         $fixes = explode(",", $fixcollection);
         $returnMe = [];
 
-        $handle = fopen("airac_fixes.dat", "r") or die("Couldn't get handle");
+        $handle = fopen("../airac_fixes.dat", "r") or die("Couldn't get handle");
         if ($handle) {
             while (!feof($handle)) {
                 $buffer = fgets($handle, 4096);

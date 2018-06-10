@@ -9,7 +9,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Oh no!</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button v-on:click.stop="clearCurrentSelected" type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -45,7 +45,9 @@
                 markers: [],
                 loaded: false,
                 lastSearchQuery: '',
-                selectedPlane: undefined
+                selectedPlane: undefined,
+                selectedFlightpath: undefined,
+                updatedATC: true,
             }
         },
 
@@ -57,17 +59,19 @@
                 attribution: 'VatsimRadar 📡 is powered by <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
                 id: 'mapbox.dark',
-                accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw'
+                accessToken: 'pk.eyJ1IjoiYXJqYW5rIiwiYSI6ImNqaDk0ZnV2NzBha3czYXFoNm9haDc3ZnAifQ.mMG34-9irYVnXu2mpl06pw',
+                //noWrap: true, - Disabled, because it causes errors with Mapbox tiles
             }).addTo(this.map);
 
             let self = this;
             this.map.on('click', function(){
                 self.clearCurrentSelected();
+                if(self.selectedFlightpath !== undefined) self.map.removeLayer(self.selectedFlightpath);
                 self.$store.state.showSidebar = false;
             });
 
             this.requestClientData();
-            setInterval(this.requestClientData, 1000 * 10);
+            setInterval(this.requestClientData, 1000 * 60);
         },
 
         methods: {
@@ -111,6 +115,10 @@
                         iconSize:     [22, 22], // size of the icon
                         iconAnchor:   [11, 22], // point of the icon which will correspond to marker's location
                     });
+
+                    // Also refresh the flightpath
+                    if(this.selectedFlightpath !== undefined) this.map.removeLayer(this.selectedFlightpath);
+                    this.showFlightPath(client);
                 }else{
                     icon = L.icon({
                         iconUrl: 'css/images/plane.svg',
@@ -142,6 +150,7 @@
                         let self = this;
                         marker.on('click', function(){
                             self.clearCurrentSelected();
+                            if(self.selectedFlightpath !== undefined) self.map.removeLayer(self.selectedFlightpath); // Remove flightpath of previous selected flight
                             let icon = L.icon({
                                 iconUrl: 'css/images/plane_selected.svg',
                                 iconSize:     [22, 22], // size of the icon
@@ -154,6 +163,7 @@
 
                             console.log(client.callsign + ' - ' + client.planned_aircraft);
                             self.showFlightInfo(client);
+                            self.showFlightPath(client);
                         });
 
                         client.marker = marker;
@@ -167,16 +177,45 @@
                         };
                         let type = client.callsign.slice(-3);
                         if(type === 'TIS'){ type = 'ATIS'; }
-                        if(type === 'CTR') return console.log('Skipped CTR: ' + client.callsign);
-                        if(type !== 'GND' && type !== 'TWR' && type !== 'APP') return;
+                        if(type !== 'CTR' && type !== 'TWR' && type !== 'APP') return;
 
-                        let marker = L.circle([parseFloat(lat),parseFloat(lon)], {
-                            color: radius[type][1],
-                            fillColor: radius[type][1],
-                            fillOpacity: 0.5,
-                            radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
-                        }).addTo(this.map);
+                        let marker;
+                        if(type !== 'CTR'){
+                            console.log('Called TWR');
+                            marker = L.circle([parseFloat(lat),parseFloat(lon)], {
+                                color: radius[type][1],
+                                opacity: 0.6,
+                                fillColor: radius[type][1],
+                                fillOpacity: 0.3,
+                                radius: (!isNaN(radius[type][0])) ? radius[type][0] : 0
+                            }).addTo(this.map);
+                        }else if(type === 'CTR'){
+                            let callsign = client.callsign.substr(0, client.callsign.length - 4);
+                            //console.log('Called CTR');
 
+                            axios.get('/api/fir/' + callsign).then(response =>{
+                                let coords = [];
+                                for(let i = 0; i < response.data.length; i++){
+                                    coords.push([
+                                        parseFloat(response.data[i][0]),
+                                        parseFloat(response.data[i][1])
+                                    ]);
+                                }
+                                marker = L.polygon(coords, {color: 'green', opacity: 0.6, fillOpacity: 0.3}).addTo(this.map);
+                                marker.identifier = 'ATC';
+                                marker.bindTooltip(
+                                    '<strong>' + client.callsign + '</strong><br>' +
+                                    'Frequency: ' + client.frequency + '</br>' +
+                                    'Visual Range: ' + client.visualrange + 'nm</br>' +
+                                    'Rating: ' + client.rating
+                                );
+                                return marker;
+                            }).catch(e => {
+                                console.log(e);
+                            });
+                        }
+
+                        if(marker === undefined) return;
                         marker.identifier = 'ATC';
 
                         // Build an info tooltip
@@ -249,10 +288,11 @@
                 let promises = [];
                 promises.push(axios.get('/api/airport/' + pilot.planned_depairport + '/IATA'));
                 promises.push(axios.get('/api/airport/' + pilot.planned_destairport + '/IATA'));
+                promises.push(axios.get('/api/aircraftimg/' + aircraftType + '/' + airline));
 
                 let self = this;
                 axios.all(promises).then(function(result){
-                    self.$store.state.flightInformation['image'] = '/img/planes/' + aircraftType + '/' + airline + '/img.jpg';
+                    self.$store.state.flightInformation['image'] = (result[2].data === 404) ? '/img/no-aircraft.png' : result[2].data;
                     self.$store.state.flightInformation['flightnr'] = pilot.callsign;
                     self.$store.state.flightInformation['departure_airport'] = pilot.planned_depairport;
                     self.$store.state.flightInformation['departure_airport_iata'] = (result[0].data === 404) ? 'N/A' : result[0].data;
@@ -265,6 +305,7 @@
                     self.$store.state.flightInformation['flightplan'] = pilot.planned_route;
                     self.$store.state.flightInformation['aircraft_type'] = pilot.planned_aircraft;
                     self.$store.state.flightInformation['aircraft_pilot'] = pilot.realname;
+                    self.$store.state.flightInformation['aircraft_cid'] = pilot.cid;
                     self.$store.state.flightInformation['aircraft_speed'] = pilot.groundspeed;
                     self.$store.state.flightInformation['aircraft_heading'] = pilot.heading;
                     self.$store.state.flightInformation['aircraft_altitude'] = pilot.altitude.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -273,6 +314,38 @@
                 }).catch(function(error){
                     $('#noFlightData').modal('show');
                 });
+            },
+
+            showFlightPath(pilot){
+                let self = this;
+                axios.get('/api/positions/' + pilot.cid).then(response =>{
+                    console.log(response.data);
+                    let flightPathCoords = [];
+
+                    response.data.forEach((pos, index) => {
+                        flightPathCoords.push([
+                            parseFloat(pos.latitude),
+                            parseFloat(pos.longitude),
+                            parseFloat(pos.altitude) / 100000 * 3
+                        ]);
+                    });
+
+                    self.selectedFlightpath = L.hotline(flightPathCoords, {
+                        min: 0,
+                        palette: {
+                            0.06: 'rgb(0,255,0)',
+                            0.15: 'rgb(0,200,0)',
+                            0.3: 'rgb(0,100,0)',
+                            0.6: 'rgb(150,0,0)',
+                            0.9: 'rgb(255,0,0)',
+                        },
+                        weight: 5,
+                        outlineWidth: 0,
+                    }).addTo(this.map);
+                }).catch(e => {
+                    console.log(e);
+                });
+              // TODO
             },
 
             clearCurrentSelected(){
@@ -296,7 +369,9 @@
 
         computed: {
             showATC(){
+                if(this.$store.state.showATC === this.updatedATC) return;
                 this.loadClients();
+                this.updatedATC = this.$store.state.showATC;
                 return this.$store.state.showATC;
             },
 

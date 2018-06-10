@@ -13,7 +13,13 @@
 
 Route::get('/', 'HomeController@index');
 Route::get('/faq', function(){
-   return view('pages/faq');
+    return view('pages/faq');
+});
+Route::get('/changelog', function(){
+    return view('pages/changelog');
+});
+Route::get('/about', function(){
+    return view('pages/about');
 });
 /*route::get('/features', function(){
    return view('pages/features');

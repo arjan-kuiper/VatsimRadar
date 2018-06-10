@@ -13,14 +13,14 @@
                     </div>
                 </div>
                 <div class="row row-spacer" align="center">
-                    <div class="col-md">
+                    <div class="col-4">
                         <span class="airport-title">{{ flightInformation['departure_airport'] }}</span><br>
                         <span class="airport-small">{{ flightInformation['departure_airport_iata'] }}</span>
                     </div>
-                    <div class="col-md">
+                    <div class="col-4">
                         <i class="fas fa-plane fa-2x"></i>
                     </div>
-                    <div class="col-md">
+                    <div class="col-4">
                         <span class="airport-title">{{ flightInformation['arrival_airport'] }}</span><br>
                         <span class="airport-small">{{ flightInformation['arrival_airport_iata'] }}</span>
                     </div>
@@ -63,19 +63,21 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-4">
                         <span class="airport-small">Aircraft:&nbsp;</span><br>
                         <span class="airport-small">Groundspeed:&nbsp;</span><br>
                         <span class="airport-small">Heading:&nbsp;</span><br>
                         <span class="airport-small">Altitude:&nbsp;</span><br>
-                        <span class="airport-small">Pilot:&nbsp;</span>
+                        <span class="airport-small">Pilot:&nbsp;</span><br>
+                        <span class="airport-small">CID:&nbsp;</span>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-8">
                         <span class="airport-small">{{ flightInformation['aircraft_type'] }}</span><br>
                         <span class="airport-small">{{ flightInformation['aircraft_speed'] }}kts</span><br>
                         <span class="airport-small">{{ flightInformation['aircraft_heading'] }}°</span><br>
                         <span class="airport-small">{{ flightInformation['aircraft_altitude'] }}ft</span><br>
-                        <span class="airport-small">{{ flightInformation['aircraft_pilot'] }}</span>
+                        <span class="airport-small">{{ flightInformation['aircraft_pilot'] }}</span><br>
+                        <span class="airport-small">{{ flightInformation['aircraft_cid'] }}</span>
                     </div>
                 </div>
                 <div class="row row-spacer">

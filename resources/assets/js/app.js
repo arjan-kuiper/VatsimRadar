@@ -24,6 +24,7 @@ const store = new Vuex.Store({
     state: {
         totalClients: 0,
         showATC: true,
+        showFIR: true,
         searchQuery: '',
 
         showSidebar: false,
@@ -42,6 +43,7 @@ const store = new Vuex.Store({
             'flightplan': 'No flightplan found',
             'aircraft_type': 'Unknown',
             'aircraft_pilot': 'Unknown',
+            'aircraft_cid': 'Unknown',
             'aircraft_speed': 0,
             'aircraft_heading': 0,
             'aircraft_altitude': 0
@@ -50,6 +52,9 @@ const store = new Vuex.Store({
     mutations: {
         setShowATC(state, payload){
             state.showATC = payload;
+        },
+        setShowFIR(state, payload){
+            state.showFIR = payload;
         },
         setSearchQuery(state, payload){
             state.searchQuery = payload;

@@ -10,11 +10,14 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Live Map</a>
                     </li>
-                    <!--<li class="nav-item">
-                        <a class="nav-link" href="/features">Features</a>
-                    </li>-->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/changelog">Changelog</a>
                     </li>
                 </ul>
             </div>
@@ -73,6 +76,7 @@
             changeShowATC(){
                 return this.$store.commit('setShowATC', this.showATC);
             },
+
             submitSearch(){
                 this.searchQuery = this.searchQuery.toUpperCase();
                 return this.$store.commit('setSearchQuery', this.searchQuery);
