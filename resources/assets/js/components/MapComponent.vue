@@ -71,7 +71,7 @@
             });
 
             this.requestClientData();
-            setInterval(this.requestClientData, 1000 * 10);
+            setInterval(this.requestClientData, 1000 * 60);
         },
 
         methods: {

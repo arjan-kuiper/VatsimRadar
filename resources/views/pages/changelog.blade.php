@@ -33,31 +33,37 @@
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">V1.2.0 (?? June 2018) - <b>Current</b></h5>
+                            <h5 class="card-title">V1.2.0 (June 10 2018) - <b>Current</b></h5>
                             <p class="card-text">
                                 <p>
                                     <b>Added</b><br>
-                                <ul>
-                                    <li>Flightpaths - TTL (Time To Live) of waypoints is 6 hours after creation</li>
-                                    <li>Favicon - Support for all devices</li>
-                                    <li>About page - Requests for your virtual airline to be shown there can be send to
-                                        <a href="mailto:arjanforgames52@gmail.com?SUBJECT=Virtual Airline">VatsimRadar</a>
-                                    </li>
-                                    <li>Changelog page - Keep track of all updates</li>
-                                </ul>
+                                    <ul>
+                                        <li>Flightpaths - TTL (Time To Live) of waypoints is 6 hours after creation</li>
+                                        <li>Favicon - Support for all devices</li>
+                                        <li>About page - Requests for your virtual airline to be shown there can be send to
+                                            <a href="mailto:arjanforgames52@gmail.com?SUBJECT=Virtual Airline">VatsimRadar</a>
+                                        </li>
+                                        <li>Changelog page - Keep track of all updates</li>
+                                    </ul>
                                 </p>
                                 <p>
                                     <b>Fixed</b><br>
-                                <ul>
-                                    <li>Sidebar not scaling well on some devices</li>
-                                </ul>
+                                    <ul>
+                                        <li>Sidebar not scaling well on some devices</li>
+                                    </ul>
+                                </p>
+                                <p>
+                                    <b>Known Issues</b><br>
+                                    <ul>
+                                        <li>Sometimes the flightpath is not removed from the map upon click away from a flight. - Refresh the page to solve the issue.</li>
+                                    </ul>
                                 </p>
                             </p>
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">V1.1.0 (26 May 2018)</h5>
+                            <h5 class="card-title">V1.1.0 (May 26 2018)</h5>
                             <p class="card-text">
                                 <p>
                                     <b>Added</b><br>

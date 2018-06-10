@@ -1,7 +1,7 @@
 <template>
     <div>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="z-index: 1337">
-            <a class="navbar-brand" href="#">VatsimRadar 📡 <span class="badge badge-warning">DEV</span></a>
+            <a class="navbar-brand" href="#">VatsimRadar 📡 <span class="badge badge-warning">BETA</span></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

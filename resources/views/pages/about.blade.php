@@ -97,36 +97,11 @@
         </div>
     </div>
     <hr>
-    <h5><strong>Virtual Airlines using VatsimRadar</strong></h5>
+    <h5><strong>Partners</strong></h5>
     <div class="row text-center">
         <div class="col-md-2 partner-img">
             <a href="#" rel="nofollow" target="_blank">
-                Your virtual airline logo here?
-            </a>
-        </div>
-        <div class="col-md-2 partner-img">
-            <a href="#" rel="nofollow" target="_blank">
-                Your virtual airline logo here?
-            </a>
-        </div>
-        <div class="col-md-2 partner-img">
-            <a href="#" rel="nofollow" target="_blank">
-                Your virtual airline logo here?
-            </a>
-        </div>
-        <div class="col-md-2 partner-img">
-            <a href="#" rel="nofollow" target="_blank">
-                Your virtual airline logo here?
-            </a>
-        </div>
-        <div class="col-md-2 partner-img">
-            <a href="#" rel="nofollow" target="_blank">
-                Your virtual airline logo here?
-            </a>
-        </div>
-        <div class="col-md-2 partner-img">
-            <a href="#" rel="nofollow" target="_blank">
-                Your virtual airline logo here?
+                <img width="100%" src="http://web.computerpilot.com/wp-content/uploads/vatsim-official-2010_0480_r.png">
             </a>
         </div>
     </div>

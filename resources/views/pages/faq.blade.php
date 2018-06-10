@@ -67,7 +67,7 @@
                     <hr>
                     <p>
                     <h5>Can I view past flight?</h5>
-                        <p>Soon?</p>
+                        <p>Soon!</p>
                     </p>
                 </div>
             </div>

@@ -74,6 +74,6 @@ class PositionController extends Controller
     }
 
     private function cleanup(){
-        Position::where('created_at', '<=', \Carbon\Carbon::now()->subHours(6))->delete();
+        Position::where('created_at', '<=', \Carbon\Carbon::now()->subHours(6)->toDateTimeString())->delete();
     }
 }
