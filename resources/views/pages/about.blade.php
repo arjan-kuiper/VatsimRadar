@@ -86,12 +86,12 @@
             </a>
         </div>
         <div class="col-2 partner-img">
-            <a href="https://www.ubuntu.com/" rel="nofollow" target="_blank">
+            <a href="https://leafletjs.com/" rel="nofollow" target="_blank">
                 <img width="100%" src="{{ asset('img/powered-by/leaflet.png') }}">
             </a>
         </div>
         <div class="col-2 partner-img">
-            <a href="https://www.ubuntu.com/" rel="nofollow" target="_blank">
+            <a href="https://www.mapbox.com/" rel="nofollow" target="_blank">
                 <img width="100%" src="{{ asset('img/powered-by/mapbox.png') }}">
             </a>
         </div>
