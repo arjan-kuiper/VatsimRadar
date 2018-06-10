@@ -1,5 +1,6 @@
 1) Ze DEV tag op BETA in NavbarComponent.vue
 2) home.blade.php -> uncomment console.log = function(){}
 3) webpack.config.js -> mode op production
-4) op de server -> npm run production
-5) Zet de requestClientData interval op 60 seconden ipv 10
+4) Zet de requestClientData interval op 60 seconden ipv 10
+5) Changelog updaten
+6) op de server -> npm run production

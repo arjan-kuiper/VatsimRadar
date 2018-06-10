@@ -14,10 +14,14 @@
                         <a class="nav-link" href="/">Live Map</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/faq">FAQ</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Changelog</a>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -34,9 +38,12 @@
                                 <p>
                                     <b>Added</b><br>
                                 <ul>
-                                    <li>Flightpaths</li>
-                                    <li>Favicon</li>
-                                    <li>Changelog page</li>
+                                    <li>Flightpaths - TTL (Time To Live) of waypoints is 6 hours after creation</li>
+                                    <li>Favicon - Support for all devices</li>
+                                    <li>About page - Requests for your virtual airline to be shown there can be send to
+                                        <a href="mailto:arjanforgames52@gmail.com?SUBJECT=Virtual Airline">VatsimRadar</a>
+                                    </li>
+                                    <li>Changelog page - Keep track of all updates</li>
                                 </ul>
                                 </p>
                                 <p>

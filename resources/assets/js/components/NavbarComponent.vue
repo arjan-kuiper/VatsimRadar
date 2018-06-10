@@ -11,6 +11,9 @@
                         <a class="nav-link active" href="#">Live Map</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/faq">FAQ</a>
                     </li>
                     <li class="nav-item">

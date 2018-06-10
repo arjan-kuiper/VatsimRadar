@@ -47,6 +47,7 @@ class PositionController extends Controller
         }
 
         Position::insert($toInsert);
+        $this->cleanup();
     }
 
     public function show($cid)
@@ -70,5 +71,9 @@ class PositionController extends Controller
     public function clear()
     {
         Position::truncate();
+    }
+
+    private function cleanup(){
+        Position::where('created_at', '<=', \Carbon\Carbon::now()->subHours(6))->delete();
     }
 }
