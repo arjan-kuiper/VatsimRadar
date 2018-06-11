@@ -16,7 +16,8 @@
 </head>
 <body style="background-color: #ecf0f1;">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="z-index: 1337">
-    <a class="navbar-brand" href="/">VatsimRadar 📡 <span class="badge badge-warning">BETA</span></a>
+    <img class="d-none d-sm-block" width="15%" src="img/logo.svg">
+    <img class="d-block d-sm-none" width="50%" src="img/logo.svg">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -101,7 +102,7 @@
     <div class="row text-center">
         <div class="col-md-2 partner-img">
             <a href="#" rel="nofollow" target="_blank">
-                <img width="100%" src="http://web.computerpilot.com/wp-content/uploads/vatsim-official-2010_0480_r.png">
+                <img width="100%" src="{{ asset('/img/partners/deltavirtual.png') }}">
             </a>
         </div>
     </div>
