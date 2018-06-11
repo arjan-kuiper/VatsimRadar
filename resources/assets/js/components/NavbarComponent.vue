@@ -1,7 +1,8 @@
 <template>
     <div>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="z-index: 1337">
-            <a class="navbar-brand" href="#">VatsimRadar 📡 <span class="badge badge-warning">BETA</span></a>
+            <img class="d-none d-sm-block" width="15%" src="img/logo.svg">
+            <img class="d-block d-sm-none" width="50%" src="img/logo.svg">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -21,7 +22,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="mx-auto order-0">
+            <div class="mx-auto order-0 d-none d-sm-block">
                 <div>
                     <div class="input-group mb-2">
                         <div class="input-group-prepend">
