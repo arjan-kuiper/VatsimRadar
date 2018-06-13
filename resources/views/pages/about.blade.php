@@ -102,12 +102,12 @@
     <div class="row text-center">
         <div class="col-md-2 partner-img">
             <a href="http://www.deltavirtual.org/" rel="nofollow" target="_blank">
-                <img width="100%" src="{{ asset('/img/partners/deltavirtual.png') }}">
+                <img width="100%" src="{{ asset('img/partners/deltavirtual.png') }}">
             </a>
         </div>
         <div class="col-md-2 partner-img">
             <a href="http://www.canadianxpress.ca/" rel="nofollow" target="_blank">
-                <img width="100%" src="{{ asset('/img/partners/canadianexpress.png') }}">
+                <img width="100%" src="{{ asset('img/partners/canadianexpress.png') }}">
             </a>
         </div>
     </div>
