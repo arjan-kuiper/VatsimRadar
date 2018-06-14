@@ -48510,7 +48510,7 @@ Array.prototype.diff = function (a) {
                         }).addTo(this.map);
                     } else if (type === 'CTR') {
                         var callsign = client.callsign.substr(0, client.callsign.length - 4);
-                        //console.log('Called CTR');
+                        console.log('CTR: ' + callsign);
 
                         __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/fir/' + callsign).then(function (response) {
                             var coords = [];
