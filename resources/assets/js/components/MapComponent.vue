@@ -191,7 +191,7 @@
                             }).addTo(this.map);
                         }else if(type === 'CTR'){
                             let callsign = client.callsign.substr(0, client.callsign.length - 4);
-                            //console.log('Called CTR');
+                            console.log('CTR: ' + callsign);
 
                             axios.get('/api/fir/' + callsign).then(response =>{
                                 let coords = [];
