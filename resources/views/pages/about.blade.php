@@ -110,6 +110,11 @@
                 <img width="100%" src="{{ asset('img/partners/canadianexpress.png') }}">
             </a>
         </div>
+        <div class="col-md-2 partner-img">
+            <a href="https://aeevirtual.eu/" rel="nofollow" target="_blank">
+                <img width="100%" src="{{ asset('img/partners/aegean.png') }}">
+            </a>
+        </div>
     </div>
 </div>
 </body>
