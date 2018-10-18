@@ -6,7 +6,7 @@ VatsimRadar is a live flight tracker for the VATSIM network. You can view a live
 
 VatsimRadar was (and is) built using the latest technologies in order to deliver high speed, realtime flight tracking. VatsimRadar is inspired by FlightRadar24 and aims to deliver as much information as cleanly as possible. Features are being added along the way and requests to add new things are always welcome. VatsimRadar strongly depends upon a well founded community and couldn't exist and won't exist without enthusiastic hobbyists.
 
-#Contributing
+# Contributing
 Please refer to the following guidelines when submitting patches and additions. In general, we follow the "fork-and-pull" Git workflow.
 1. **Fork** the repo on Github
 2. **Clone** the project to your own machine
