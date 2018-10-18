@@ -1,4 +1,4 @@
-<img src="https://vatsimradar.com/img/logo-dark.svg" width="500">
+<img href="https://vatsimradar.com/" src="https://vatsimradar.com/img/logo-dark.svg" width="500">
 
 ---
 
