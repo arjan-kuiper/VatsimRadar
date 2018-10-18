@@ -1,5 +1,7 @@
 <img src="https://vatsimradar.com/img/logo-dark.svg" width="500">
---
+
+---
+
 VatsimRadar is a live flight tracker for the VATSIM network. You can view a live map, track your flights and view information about flights. VatsimRadar is a work in progress website which means that things get added along the way.
 
 VatsimRadar was (and is) built using the latest technologies in order to deliver high speed, realtime flight tracking. VatsimRadar is inspired by FlightRadar24 and aims to deliver as much information as cleanly as possible. Features are being added along the way and requests to add new things are always welcome. VatsimRadar strongly depends upon a well founded community and couldn't exist and won't exist without enthusiastic hobbyists.
@@ -37,4 +39,4 @@ VatsimRadar is licensed under MIT.
   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.```
+  SOFTWARE.```-
