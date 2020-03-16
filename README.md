@@ -14,7 +14,7 @@ Please refer to the following guidelines when submitting patches and additions. 
 4. **Push** your work back up to your fork
 5. Submit a **Pull Request** so we can review your changes
 
-NOTE: Be sure to merge the latest from "upstream" before making a pull request!
+NOTE: Be sure to merge the latest from "upstream" before making a pull request.
 
 # License Summary
 VatsimRadar is licensed under MIT.
